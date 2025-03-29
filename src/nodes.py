@@ -36,7 +36,7 @@ def calculate_cost(input_tokens: int, output_tokens: int) -> float:
     return input_cost + output_cost
 
 
-def fetch_page(state: GraphState) -> GraphState:
+def fetch_html(state: GraphState) -> GraphState:
     """Fetches the HTML content for the URL specified in the state.
 
     Args:
@@ -45,7 +45,7 @@ def fetch_page(state: GraphState) -> GraphState:
     Returns:
         The updated graph state with html_content, metrics, and potentially errors.
     """
-    print(f"--- Node: fetch_page for URL: {state['url']} ---")
+    print(f"--- Node: fetch_html for URL: {state['url']} ---")
     url = state["url"]
     metrics = state.get("metrics", {})  # Ensure metrics dict exists
     fetch_start_time = time.time()
@@ -112,7 +112,7 @@ def fetch_page(state: GraphState) -> GraphState:
     return updated_state
 
 
-def preprocess_html(state: GraphState) -> GraphState:
+def preprocess_content(state: GraphState) -> GraphState:
     """Parses HTML, removes boilerplate, and extracts main text content.
 
     Args:
@@ -121,7 +121,7 @@ def preprocess_html(state: GraphState) -> GraphState:
     Returns:
         The updated graph state with preprocessed_content and metrics/errors.
     """
-    print(f"--- Node: preprocess_html for URL: {state['url']} ---")
+    print(f"--- Node: preprocess_content for URL: {state['url']} ---")
     metrics = state.get("metrics", {})
     preprocessed_content = None
     error_message = None
