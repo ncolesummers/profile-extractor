@@ -1,0 +1,21 @@
+[project]
+name = "profile-extractor"
+version = "0.1.0"
+description = "Extract faculty and staff profiles using LLMs"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+  "langchain",
+  "langchain-google-genai",
+  "langgraph",
+  "pydantic",
+  "requests",
+  "beautifulsoup4",
+  "pandas",
+  "openpyxl",
+  "python-dotenv",
+  "httpx",
+]
+
+[project.optional-dependencies]
+dev = ["ruff", "ipython"]
