@@ -112,7 +112,7 @@
         *   Use `sys.exit(0)` for success or `sys.exit(1)` for errors caught in the `except` block.
 *   [ ] Review all imports in `main.py` to ensure only necessary ones remain.
 
-**7. (Optional) Introduce Application Class**
+**7. Introduce Application Class**
 
 *   [ ] **Goal:** Encapsulate state and lifecycle management.
 *   [ ] Define an `App` class (e.g., in `main.py` or `src/app_class.py`).
