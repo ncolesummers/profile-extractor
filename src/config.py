@@ -12,7 +12,7 @@ if not GOOGLE_API_KEY:
     )
 
 # --- Model Configuration ---
-# Use gemini-1.5-flash-latest for a balance of speed and capability
+# Use gemini-2.0-flash-latest for a balance of speed and capability
 MODEL_NAME = "gemini-2.0-flash-latest"
 LLM_TEMPERATURE = 0.1  # Low temperature for deterministic extraction
 
@@ -27,5 +27,9 @@ REQUEST_DELAY_SECONDS = 2.0  # Respectful delay between requests
 # --- Output Configuration ---
 OUTPUT_DIR = "output"
 OUTPUT_FILENAME = "extracted_profiles.xlsx"
+
+# --- Logging Configuration ---
+LOG_TO_FILE = True  # Whether to log to a file in addition to console
+LOG_FILE_PATH = "logs/app.log"  # Path to the log file
 
 # You can add other configurations here as needed, e.g., logging settings
