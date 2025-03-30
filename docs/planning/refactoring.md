@@ -54,18 +54,18 @@
 
 **4. Reporting and Saving (`src/reporting.py`)**
 
-*   [ ] **Goal:** Isolate metrics calculation and results saving.
-*   [ ] Create `src/reporting.py`.
-*   [ ] Move `calculate_metrics` function from `main.py` to `src/reporting.py`.
-    *   This function will need the `results` list and potentially the `langsmith_client` and `settings` object as input.
-    *   Refactor the LangSmith token retrieval part for clarity if possible. Review if the fallback token estimation logic is still desired.
-*   [ ] Move `save_results` function from `main.py` to `src/reporting.py`.
-    *   This function will need the `results` list, the calculated `metrics`, and the `settings` object (for `OUTPUT_DIR`, `OUTPUT_FILENAME`) as input. *(Dependencies `pandas`, `openpyxl` already present)*.
-*   [ ] Move `format_duration` from `src.utils` if it's only used here, or keep it in `utils`.
-*   [ ] Update `main.py`:
-    *   Import `calculate_metrics` and `save_results` from `src/reporting.py`.
-    *   Call these functions after `run_processing_loop` completes.
-    *   Remove the complex metrics threading logic from `main.py`. Evaluate if sequential calculation is acceptable. If threading *is* essential, implement it within `src/reporting.py` or potentially use `concurrent.futures`.
+*   [x] **Goal:** Isolate metrics calculation and results saving.
+*   [x] Create `src/reporting.py`.
+*   [x] Move `calculate_metrics` function from `main.py` to `src/reporting.py`.
+    *   [x] This function will need the `results` list and potentially the `langsmith_client`, `settings` object, and `logger` as input.
+    *   [x] Refactored LangSmith token retrieval for clarity. Fallback token estimation logic reviewed and kept.
+*   [x] Move `save_results` function from `main.py` to `src/reporting.py`.
+    *   [x] This function will need the `results` list, the calculated `metrics`, the `settings` object (for `OUTPUT_DIR`, `OUTPUT_FILENAME`), and `logger` as input. *(Dependencies `pandas`, `openpyxl` handled within reporting.py)*.
+*   [x] Move `format_duration` from `src.utils` if it's only used here, or keep it in `utils`. *(Decision: Kept in `utils.py`)*.
+*   [x] Update `main.py`:
+    *   [x] Import `calculate_metrics` and `save_results` from `src/reporting.py`.
+    *   [x] Call these functions after `run_processing_loop` completes, passing required arguments.
+    *   [x] Removed the complex metrics threading logic from `main.py`. Sequential calculation is now used.
 
 **5. Resource Cleanup (`src/cleanup.py`)**
 
