@@ -64,7 +64,8 @@ profile-extractor/
 ├── src/
 │   ├── __init__.py
 │   ├── schemas.py         # Pydantic data models (ProfileData, ValidationResult)
-│   ├── graph.py           # LangGraph definition and state
+│   ├── state.py           # GraphState TypedDict definition
+│   ├── graph.py           # LangGraph definition and workflow
 │   ├── nodes.py           # Functions for each node in the graph
 │   ├── main.py            # Main script to load URLs, run graph, save output
 │   ├── utils.py           # Utility functions (e.g., timers, logging setup)

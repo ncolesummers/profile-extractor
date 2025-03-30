@@ -5,6 +5,9 @@ from langgraph.graph import StateGraph, END
 # Use a relative import assuming graph.py is in the same directory level as schemas.py
 from .schemas import ProfileData, ValidationResult
 
+# Import GraphState from state.py
+from .state import GraphState
+
 # --- Import Node Functions ---
 # Import the actual node implementations from nodes.py
 from .nodes import (

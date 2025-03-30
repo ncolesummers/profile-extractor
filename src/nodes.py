@@ -6,7 +6,7 @@ from bs4 import BeautifulSoup
 import json
 
 # Import the GraphState TypedDict
-from .graph import GraphState
+from .state import GraphState
 
 # Import configuration
 from . import config
