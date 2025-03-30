@@ -10,6 +10,9 @@ import pandas as pd
 from pathlib import Path
 from tqdm import tqdm
 
+# Force LangChain to use daemon threads for its handlers
+os.environ["LANGCHAIN_HANDLER_THREAD_DAEMON"] = "true"
+
 # Import our application components
 from src.utils import setup_logging, format_duration
 from src.graph import app  # This is our compiled LangGraph application
@@ -32,9 +35,6 @@ if LANGSMITH_API_KEY:
     # Import LangSmith client for aggregate metrics
     from langsmith import Client, traceable
 
-    # Force daemon for LangSmith threads by setting environment variable
-    os.environ["LANGCHAIN_HANDLER_THREAD_DAEMON"] = "true"
-
     # Initialize client with auto_batch_tracing disabled
     langsmith_client = Client(api_key=LANGSMITH_API_KEY, auto_batch_tracing=False)
     logger.info("LangSmith Client initialized with auto_batch_tracing=False")
@@ -48,6 +48,8 @@ else:
 
 # Initialize a cleanup flag to prevent duplicate cleanup
 _cleanup_done = False
+# Add a flag to signal graceful shutdown request
+_shutdown_requested = False
 
 
 def cleanup_resources():
@@ -58,6 +60,15 @@ def cleanup_resources():
         return
 
     logger.info("Performing cleanup of resources...")
+
+    # Force set all non-daemon threads to daemon status
+    for thread in threading.enumerate():
+        if thread is not threading.current_thread() and not thread.daemon:
+            try:
+                thread.daemon = True
+                logger.debug(f"Set thread {thread.name} to daemon status")
+            except RuntimeError as e:
+                logger.warning(f"Could not set thread {thread.name} to daemon: {e}")
 
     # Clean up LangSmith client resources if it exists
     if langsmith_client:
@@ -97,34 +108,7 @@ def cleanup_resources():
         except Exception as e:
             logger.warning(f"Error during LangSmith client cleanup: {e}")
 
-    # Attempt to clean up all thread pools that might be open
-    try:
-        import concurrent.futures
-        import atexit
-
-        # Force shut down all ThreadPoolExecutors registered with atexit
-        for obj in atexit._exithandlers:
-            if isinstance(
-                obj[0], concurrent.futures.thread.ThreadPoolExecutor.shutdown
-            ):
-                logger.debug(
-                    f"Forcing shutdown of ThreadPoolExecutor via atexit handler"
-                )
-                obj[0](wait=False)
-    except Exception as e:
-        logger.warning(f"Error during thread pool cleanup: {e}")
-
-    # --- Try to force any requests session to clean up ---
-    try:
-        import requests
-
-        requests.sessions.Session.close_all_pools()
-        logger.debug("Closed all requests session pools")
-    except Exception as e:
-        logger.warning(f"Error closing requests pools: {e}")
-    # --- End requests cleanup ---
-
-    # Check for non-daemon threads
+    # Check for non-daemon threads remaining (after attempting to set daemon)
     non_daemon_threads = []
     for thread in threading.enumerate():
         if thread is not threading.current_thread() and not thread.daemon:
@@ -147,9 +131,10 @@ def cleanup_resources():
 
 # Register signal handlers for graceful shutdown
 def signal_handler(signum, frame):
-    logger.info(f"Received signal {signum}, initiating shutdown...")
-    cleanup_resources()
-    sys.exit(0)
+    global _shutdown_requested
+    logger.info(f"Received signal {signum}, requesting graceful shutdown...")
+    _shutdown_requested = True
+    # Do not exit here; let the main loop handle it
 
 
 # Register signal handlers
@@ -493,10 +478,17 @@ def main():
 
         # Process each URL with a progress bar
         results = []
+        interrupted = False  # Flag to track if loop was interrupted
         try:
             for url in tqdm(
                 urls, desc="Processing URLs", unit="profile", position=0, leave=True
             ):
+                # Check for shutdown signal before processing next URL
+                if _shutdown_requested:
+                    logger.warning("Shutdown requested, stopping URL processing...")
+                    interrupted = True
+                    break  # Exit the loop gracefully
+
                 # Generate a unique thread_id for each profile's extraction process
                 profile_thread_id = f"profile-{uuid.uuid4()}"
 
@@ -506,38 +498,100 @@ def main():
                 # Optional: Add a small delay between processing URLs
                 time.sleep(0.5)
         except KeyboardInterrupt:
-            logger.warning("Keyboard interrupt detected. Stopping gracefully...")
-            logger.info(
-                f"Processed {len(results)} out of {len(urls)} URLs before interruption"
+            # This handles Ctrl+C *during* the tqdm loop or process_url call
+            logger.warning(
+                "Keyboard interrupt detected during processing loop. Stopping gracefully..."
             )
-            if not results:
-                logger.warning(
-                    "No profiles were processed before interruption. Exiting."
-                )
-                return
-            logger.info("Saving partial results before exit...")
+            interrupted = True
 
-        # Calculate and save results (even if interrupted)
+        # --- Saving Logic (runs after loop, even if interrupted) ---
+        metrics = {}  # Initialize metrics dictionary
+        if interrupted:
+            logger.info(
+                f"Processed {len(results)} out of {len(urls)} URLs before interruption."
+            )
+
+        # Calculate metrics in a separate thread only if not interrupted and we have results
+        if not _shutdown_requested and results:
+            metrics_thread = None
+            thread_metrics_result = [{}]  # Use list/dict to allow thread modification
+
+            def _calc_metrics_target(results_list, output_list):
+                try:
+                    calculated_metrics = calculate_metrics(results_list)
+                    output_list[0] = calculated_metrics
+                    logger.debug("Metrics calculation thread completed successfully.")
+                except Exception as e:
+                    logger.error(
+                        f"Error within metrics calculation thread: {e}", exc_info=True
+                    )
+                    # Leave output_list[0] as default {}
+
+            try:
+                metrics_thread = threading.Thread(
+                    target=_calc_metrics_target,
+                    args=(results, thread_metrics_result),
+                    daemon=True,  # Set as daemon so it doesn't block exit
+                )
+                logger.info("Starting metrics calculation thread...")
+                metrics_thread.start()
+
+                # Wait for the thread, but make the wait interruptible
+                while metrics_thread.is_alive():
+                    if _shutdown_requested:
+                        logger.warning(
+                            "Shutdown requested during metrics calculation. Proceeding without waiting for full metrics."
+                        )
+                        break  # Exit the waiting loop
+                    metrics_thread.join(timeout=0.5)  # Check flag every 0.5s
+                else:  # Loop finished because thread completed (no break)
+                    if not _shutdown_requested:
+                        metrics = thread_metrics_result[0]  # Get results from thread
+                        logger.info("Metrics calculation thread finished.")
+                    else:
+                        # Shutdown requested near the end, use potentially incomplete results
+                        metrics = thread_metrics_result[0]
+                        logger.warning(
+                            "Metrics thread finished, but shutdown was requested during wait. Using potentially incomplete metrics."
+                        )
+
+            except Exception as e:
+                logger.error(f"Error managing metrics thread: {e}", exc_info=True)
+                if metrics_thread and metrics_thread.is_alive():
+                    logger.warning(
+                        "Metrics thread might still be running in background after error."
+                    )
+
+        elif _shutdown_requested:
+            logger.warning(
+                "Skipping metrics calculation due to pending shutdown request."
+            )
+
+        # Save results if any were collected
         if results:
-            metrics = calculate_metrics(results)
-            save_results(results, metrics)
-            logger.info("Profile extraction process completed")
-            if len(results) < len(urls):
+            logger.info("Saving results...")
+            save_results(results, metrics)  # Pass calculated or empty metrics
+            logger.info("Profile extraction process results saved.")
+            if interrupted:
                 logger.info(
-                    f"Note: Only {len(results)}/{len(urls)} URLs were processed"
+                    f"Note: Processing was interrupted. Results for {len(results)} URLs were saved."
                 )
+        elif interrupted:
+            logger.warning(
+                "Processing interrupted before any results could be generated. No data to save."
+            )
         else:
-            logger.warning("No results to save")
-
-    except KeyboardInterrupt:
-        # This catches a keyboard interrupt outside the URL processing loop
-        logger.warning(
-            "Keyboard interrupt detected outside processing loop. Exiting without saving."
-        )
+            logger.warning(
+                "No results were generated (e.g., all URLs failed). No data to save."
+            )
 
     except Exception as e:
-        logger.error(f"Fatal error in main process: {str(e)}")
-        raise
+        # Catch other potential errors during loading or setup
+        logger.error(f"Fatal error in main process: {str(e)}", exc_info=True)
+        # Ensure cleanup happens even on unexpected errors before the finally block might
+        cleanup_resources()
+        sys.exit(1)  # Exit with error code
+
     finally:
         end_time = time.time()
         total_duration = end_time - start_time
@@ -558,6 +612,12 @@ def main():
             logger.warning(f"Error during LangGraph app cleanup: {e}")
         # ------------------------------------------------------
 
+        # Monitor and force daemonization of non-daemon threads
+        for thread in threading.enumerate():
+            if not thread.daemon and thread is not threading.current_thread():
+                logger.warning(f"Setting non-daemon thread to daemon: {thread.name}")
+                thread.daemon = True
+
         # Clean up other resources (LangSmith, requests, etc.)
         cleanup_resources()
 
@@ -570,22 +630,24 @@ def main():
                 )
 
             logger.info("All tasks completed. Attempting graceful exit.")
-            # Give threads a moment to cleanup if they're responding to shutdown
+            # Give threads a moment to potentially finish cleanup
             time.sleep(1.0)
 
-            # If we still have non-daemon threads, force exit
+            # Check one last time for non-daemon threads
             remaining_non_daemon = [
                 t
                 for t in threading.enumerate()
                 if t is not threading.current_thread() and not t.daemon
             ]
+
             if remaining_non_daemon:
                 logger.warning(
-                    f"Force exiting with {len(remaining_non_daemon)} non-daemon threads still running"
+                    f"Force exiting with {len(remaining_non_daemon)} non-daemon threads still running: {[t.name for t in remaining_non_daemon]}"
                 )
-                os._exit(0)  # Force exit without cleanup
+                os._exit(0)  # Force exit only as a last resort
             else:
-                sys.exit(0)
+                logger.info("Exiting gracefully via sys.exit(0).")
+                sys.exit(0)  # Standard graceful exit
 
 
 if __name__ == "__main__":

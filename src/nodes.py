@@ -207,6 +207,19 @@ def preprocess_content(state: GraphState) -> GraphState:
             else:
                 raise ValueError("Could not find <body> tag in HTML.")
 
+        # ---  Extract Photo URL ---
+        photo_url = None
+        headshot_div = soup.select_one(".profile-container-headshot")
+        if headshot_div:
+            img_tag = headshot_div.find("img")
+            if img_tag:
+                photo_url = img_tag["src"]
+                print(f"Successfully extracted photo URL: {photo_url}")
+            else:
+                print("No img tag found within .profile-container-headshot")
+        else:
+            print("No div with class 'profile-container-headshot' found.")
+
         # --- Extract Text --- #
         if content_container:
             preprocessed_content = content_container.get_text(separator=" ", strip=True)
@@ -250,6 +263,8 @@ def preprocess_content(state: GraphState) -> GraphState:
         "error": state.get("error") or error_message,
         "error_details": state.get("error_details") or error_details_dict,
     }
+    if photo_url:
+        updated_state["extracted_data"] = {"photo_url": photo_url}
     return updated_state
 
 
@@ -325,7 +340,7 @@ def extract_data(state: GraphState) -> GraphState:
                 ),
                 (
                     "human",
-                    "Please extract the faculty profile details from the following text content:\n\n---\n{page_content}\n---",
+                    'Please extract the faculty profile details from the following text content:\\n\\n---\\n{page_content}\\n---",',
                 ),
             ]
         )
@@ -341,7 +356,7 @@ def extract_data(state: GraphState) -> GraphState:
         # Ensure tracers have completed
         wait_for_all_tracers()
 
-        # --- Extract Metadata ---
+        # --- Extract Metadata ---\
         # AI Engineer Note: Accessing token usage from AIMessage.response_metadata
         usage_metadata = getattr(ai_message, "response_metadata", {}).get(
             "usage_metadata", {}
@@ -422,6 +437,17 @@ def extract_data(state: GraphState) -> GraphState:
             # Ensure source_url is added to the target object
             target_obj["source_url"] = state["url"]
 
+            # Preserve photo_url from preprocessing step if available
+            existing_extracted_data = state.get("extracted_data", {})
+            if (
+                isinstance(existing_extracted_data, dict)
+                and "photo_url" in existing_extracted_data
+            ):
+                target_obj["photo_url"] = existing_extracted_data["photo_url"]
+                print(
+                    f"Preserved photo URL from preprocessing: {existing_extracted_data['photo_url']}"
+                )
+
             # More robust Pydantic parsing
             try:
                 # First try parsing using the parser
@@ -491,7 +517,7 @@ def extract_data(state: GraphState) -> GraphState:
         )
         print(f"Extraction took {metrics['extraction_time_ms']:.2f} ms")
 
-    # --- Update State --- #
+    # --- Update State ---
     updated_state: GraphState = {
         **state,  # type: ignore
         "extracted_data": extracted_profile,  # Will be None if extraction failed
