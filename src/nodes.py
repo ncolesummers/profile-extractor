@@ -1,7 +1,7 @@
 import time
 import requests
 import traceback
-from typing import Dict, Any, Optional
+from typing import Optional
 from bs4 import BeautifulSoup
 import json
 

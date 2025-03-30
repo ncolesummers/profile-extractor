@@ -1,4 +1,4 @@
-from typing import TypedDict, Optional, Dict, Any, List
+from typing import TypedDict, Optional, Dict, Any
 from langgraph.graph import StateGraph, END
 
 # Import the Pydantic models from schemas.py
