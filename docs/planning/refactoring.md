@@ -1,14 +1,10 @@
-Okay, let's break down the refactoring of `main.py`. The goal is to make the code more modular, testable, and maintainable by separating concerns into different files and reducing complexity within the main script.
 
-Here's a detailed plan presented as a checklist, suitable for guiding the refactoring process:
-
-**Refactoring Plan for `main.py`**
+**Refactoring Plan for `main.py` (using uv and existing dependencies)**
 
 **1. Configuration Management (`src/config.py`)**
 
 *   [ ] **Goal:** Centralize all configuration loading and validation.
-*   [ ] Install `python-dotenv`: `pip install python-dotenv`
-*   [ ] Install Pydantic if not already present: `pip install pydantic pydantic-settings`
+*   [ ] Add Pydantic settings dependency: `uv add pydantic-settings` (This adds the capability to load settings from `.env` files easily with Pydantic v2+).
 *   [ ] Modify `src/config.py`:
     *   Import `BaseSettings` from `pydantic_settings`.
     *   Create a `Settings` class inheriting from `BaseSettings`.
@@ -17,13 +13,15 @@ Here's a detailed plan presented as a checklist, suitable for guiding the refact
     *   Instantiate the `Settings` class once to create a `settings` object that can be imported elsewhere.
 *   [ ] Update `main.py`: Remove direct `os.getenv` calls for configuration and import the `settings` object from `src/config.py`. Access settings like `settings.LANGSMITH_API_KEY`.
 *   [ ] Update other modules (e.g., `src/nodes.py` if it uses config) to import from `src/config.py` instead of `main.py` or `os.getenv`.
+*   [ ] Ensure the `pyproject.toml` file correctly lists `pydantic-settings` after running `uv add`.
+*   [ ] Run `uv sync` or let `uv run` handle syncing the environment if necessary.
 
 **2. Application Setup (`src/setup.py`)**
 
 *   [ ] **Goal:** Isolate initialization logic for logging, LangSmith, and signal handling.
 *   [ ] Create `src/setup.py`.
-*   [ ] Move `setup_logging` function from `src.utils` to `src/setup.py` (or keep in utils and import into setup).
-*   [ ] Move LangSmith initialization logic (checking `settings.LANGSMITH_API_KEY`, setting environment variables, creating `langsmith_client`) from `main.py` into a function in `src/setup.py` (e.g., `setup_langsmith(settings)`). This function should return the initialized `langsmith_client` (or `None`).
+*   [ ] Move `setup_logging` function from `src.utils` to `src/setup.py`
+*   [ ] Move LangSmith initialization logic (checking `settings.LANGSMITH_API_KEY`, setting environment variables, creating `langsmith_client`) from `main.py` into a function in `src/setup.py` (e.g., `setup_langsmith(settings)`). This function should return the initialized `langsmith_client` (or `None`). *(Dependency `langsmith` already present)*.
 *   [ ] Move signal handling logic:
     *   Define a simple class (e.g., `ShutdownManager`) in `src/setup.py` to hold the shutdown state (`_shutdown_requested`).
     *   Move the `signal_handler` function into `src/setup.py`. It should update the state within an instance of `ShutdownManager`.
@@ -41,10 +39,10 @@ Here's a detailed plan presented as a checklist, suitable for guiding the refact
 *   [ ] **Goal:** Isolate the core task of processing URLs.
 *   [ ] Create `src/processing.py`.
 *   [ ] Move the `process_url` function from `main.py` to `src/processing.py`.
-    *   Ensure it imports necessary dependencies (e.g., `logger`, `app` from `src.graph`, `traceable` if LangSmith is used). It might need the `app` passed to it or imported directly if appropriate.
+    *   Ensure it imports necessary dependencies (e.g., `logger`, `app` from `src.graph`, `traceable` if LangSmith is used). *(Dependencies `langgraph`, `langsmith` already present)*.
 *   [ ] Move the URL processing loop logic from `main.py`'s `try` block into a new function in `src/processing.py`, e.g., `run_processing_loop(urls, langgraph_app, shutdown_manager)`.
     *   This function should take the list of URLs, the LangGraph `app`, and the `shutdown_manager` instance as arguments.
-    *   It should contain the `tqdm` progress bar.
+    *   It should contain the `tqdm` progress bar. *(Dependency `tqdm` already present)*.
     *   Inside the loop, it should check `shutdown_manager.is_shutdown_requested()` before processing each URL.
     *   It should call the `process_url` function (now also in `src/processing.py`).
     *   It should handle the `KeyboardInterrupt` within the loop.
@@ -63,7 +61,7 @@ Here's a detailed plan presented as a checklist, suitable for guiding the refact
     *   This function will need the `results` list and potentially the `langsmith_client` and `settings` object as input.
     *   Refactor the LangSmith token retrieval part for clarity if possible. Review if the fallback token estimation logic is still desired.
 *   [ ] Move `save_results` function from `main.py` to `src/reporting.py`.
-    *   This function will need the `results` list, the calculated `metrics`, and the `settings` object (for `OUTPUT_DIR`, `OUTPUT_FILENAME`) as input.
+    *   This function will need the `results` list, the calculated `metrics`, and the `settings` object (for `OUTPUT_DIR`, `OUTPUT_FILENAME`) as input. *(Dependencies `pandas`, `openpyxl` already present)*.
 *   [ ] Move `format_duration` from `src.utils` if it's only used here, or keep it in `utils`.
 *   [ ] Update `main.py`:
     *   Import `calculate_metrics` and `save_results` from `src/reporting.py`.
@@ -121,5 +119,3 @@ Here's a detailed plan presented as a checklist, suitable for guiding the refact
 *   [ ] Move state variables (e.g., `settings`, `langsmith_client`, `shutdown_manager`, `results`) to instance attributes (`self.settings`, etc.).
 *   [ ] Convert functions like `setup_logging`, `setup_langsmith`, `run_processing_loop`, `calculate_metrics`, `save_results`, `cleanup_resources` into methods of the class.
 *   [ ] The `main()` function would then instantiate the `App` class and call its main execution method (e.g., `app.run()`).
-
-By following these steps, `main.py` will become significantly cleaner, acting as an orchestrator that delegates tasks to specialized modules. This improves readability, makes components easier to test independently, and simplifies future maintenance. Remember to test thoroughly after each major refactoring step!
