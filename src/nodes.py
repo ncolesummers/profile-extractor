@@ -334,9 +334,25 @@ def extract_data(state: GraphState) -> GraphState:
             [
                 (
                     "system",
-                    "You are an expert assistant tasked with extracting faculty profile information from web page text. "
-                    "Extract the requested information accurately based *only* on the provided text. "
-                    "Output the data in the requested structured format. Do not guess or hallucinate information not present.",
+                    "You are an expert assistant specializing in extracting information from university faculty and staff profile web pages. "
+                    "Your task is to carefully read the provided text content, identify key details about the individual, and structure them according to the `ProfileData` JSON schema."
+                    "\\n\\n**Instructions:**\\n"
+                    "1.  **Source:** The input text originates from a single faculty or staff profile page.\\n"
+                    "2.  **Accuracy:** Extract information *only* if it is explicitly present in the text. Do not infer, guess, or add information.\\n"
+                    "3.  **Schema Adherence:** Your output MUST strictly conform to the `ProfileData` JSON schema. Ensure all required fields are present and correctly typed, even if the value is null or empty.\\n"
+                    "4.  **Name Extraction:**\\n"
+                    "    *   Identify the full name of the primary faculty/staff member mentioned.\\n"
+                    "    *   Parse the name into `first_name`, `last_name`, and `middle_name` (if available). If no middle name is found, leave the `middle_name` field null or empty.\\n"
+                    "5.  **Specific Fields:** Pay close attention to extracting:\\n"
+                    "    *   `title`: The person's official job title(s).\\n"
+                    "    *   `office`: Their physical office location.\\n"
+                    "    *   `phone`: Primary contact phone number.\\n"
+                    "    *   `email`: Primary contact email address.\\n"
+                    "    *   `college_unit`, `department_division`: Their university affiliations.\\n"
+                    "    *   `degrees`: List of academic degrees.\\n"
+                    "    *   `research_focus_areas`: List of research focus areas.\\n"
+                    "    *   `photo_url`: The URL of their profile picture (this might be provided or need extraction).\\n"
+                    "6.  **Completeness:** Extract all available information for the defined schema fields. If a piece of information isn't in the text, the corresponding field should be null or empty as per the schema definition.",
                 ),
                 (
                     "human",
