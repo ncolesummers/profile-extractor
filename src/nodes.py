@@ -11,7 +11,7 @@ import os
 from .state import GraphState
 
 # Import configuration
-from . import config
+from .config import settings
 
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.prompts import ChatPromptTemplate
@@ -30,10 +30,10 @@ from .schemas import ProfileData, ValidationResult, ValidationStatus
 from langchain.callbacks.tracers.langchain import wait_for_all_tracers
 
 # Import LangSmith client for manual tracking if API key exists
-if config.LANGSMITH_API_KEY:
+if settings.LANGSMITH_API_KEY:
     from langsmith import Client, traceable
 
-    langsmith_client = Client(api_key=config.LANGSMITH_API_KEY)
+    langsmith_client = Client(api_key=settings.LANGSMITH_API_KEY)
 else:
     langsmith_client = None
 
@@ -77,8 +77,8 @@ def fetch_html(state: GraphState) -> GraphState:
 
     try:
         # Respectful delay before making the request
-        print(f"Sleeping for {config.REQUEST_DELAY_SECONDS} seconds...")
-        time.sleep(config.REQUEST_DELAY_SECONDS)
+        print(f"Sleeping for {settings.REQUEST_DELAY_SECONDS} seconds...")
+        time.sleep(settings.REQUEST_DELAY_SECONDS)
 
         headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
@@ -318,9 +318,9 @@ def extract_data(state: GraphState) -> GraphState:
 
         # Initialize LLM with metadata
         llm = ChatGoogleGenerativeAI(
-            model=config.MODEL_NAME,
-            temperature=config.LLM_TEMPERATURE,
-            google_api_key=config.GOOGLE_API_KEY,
+            model=settings.MODEL_NAME,
+            temperature=settings.LLM_TEMPERATURE,
+            google_api_key=settings.GOOGLE_API_KEY,
             stream_usage=True,  # Enable usage metadata
             metadata=metadata,  # Add metadata for tracing
             tags=["extraction"],  # Add tags for better filtering in LangSmith
@@ -590,9 +590,9 @@ def validate_data(state: GraphState) -> GraphState:
         }
 
         judge_llm = ChatGoogleGenerativeAI(
-            model=config.JUDGE_MODEL_NAME,
-            temperature=config.JUDGE_TEMPERATURE,
-            google_api_key=config.GOOGLE_API_KEY,
+            model=settings.JUDGE_MODEL_NAME,
+            temperature=settings.JUDGE_TEMPERATURE,
+            google_api_key=settings.GOOGLE_API_KEY,
             stream_usage=True,  # Enable usage metadata
             metadata=metadata,  # Add metadata for tracing
             tags=["validation"],  # Add tags for better filtering in LangSmith

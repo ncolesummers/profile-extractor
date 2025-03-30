@@ -1,32 +1,31 @@
-
 **Refactoring Plan for `main.py` (using uv and existing dependencies)**
 
 **1. Configuration Management (`src/config.py`)**
 
-*   [ ] **Goal:** Centralize all configuration loading and validation.
-*   [ ] Add Pydantic settings dependency: `uv add pydantic-settings` (This adds the capability to load settings from `.env` files easily with Pydantic v2+).
-*   [ ] Modify `src/config.py`:
+*   [x] **Goal:** Centralize all configuration loading and validation.
+*   [x] Add Pydantic settings dependency: `uv add pydantic-settings` (This adds the capability to load settings from `.env` files easily with Pydantic v2+).
+*   [x] Modify `src/config.py`:
     *   Import `BaseSettings` from `pydantic_settings`.
     *   Create a `Settings` class inheriting from `BaseSettings`.
     *   Define fields for `OUTPUT_DIR`, `OUTPUT_FILENAME`, `LANGSMITH_API_KEY`, `LANGSMITH_PROJECT`, etc., using type hints.
     *   Configure `BaseSettings` to load from environment variables and potentially a `.env` file (using `model_config` with `env_file`).
     *   Instantiate the `Settings` class once to create a `settings` object that can be imported elsewhere.
-*   [ ] Update `main.py`: Remove direct `os.getenv` calls for configuration and import the `settings` object from `src/config.py`. Access settings like `settings.LANGSMITH_API_KEY`.
-*   [ ] Update other modules (e.g., `src/nodes.py` if it uses config) to import from `src/config.py` instead of `main.py` or `os.getenv`.
-*   [ ] Ensure the `pyproject.toml` file correctly lists `pydantic-settings` after running `uv add`.
-*   [ ] Run `uv sync` or let `uv run` handle syncing the environment if necessary.
+*   [x] Update `main.py`: Remove direct `os.getenv` calls for configuration and import the `settings` object from `src/config.py`. Access settings like `settings.LANGSMITH_API_KEY`.
+*   [x] Update other modules (e.g., `src/nodes.py` if it uses config) to import from `src/config.py` instead of `main.py` or `os.getenv`.
+*   [x] Ensure the `pyproject.toml` file correctly lists `pydantic-settings` after running `uv add`.
+*   [x] Run `uv sync` or let `uv run` handle syncing the environment if necessary.
 
 **2. Application Setup (`src/setup.py`)**
 
-*   [ ] **Goal:** Isolate initialization logic for logging, LangSmith, and signal handling.
-*   [ ] Create `src/setup.py`.
-*   [ ] Move `setup_logging` function from `src.utils` to `src/setup.py`
-*   [ ] Move LangSmith initialization logic (checking `settings.LANGSMITH_API_KEY`, setting environment variables, creating `langsmith_client`) from `main.py` into a function in `src/setup.py` (e.g., `setup_langsmith(settings)`). This function should return the initialized `langsmith_client` (or `None`). *(Dependency `langsmith` already present)*.
-*   [ ] Move signal handling logic:
+*   [x] **Goal:** Isolate initialization logic for logging, LangSmith, and signal handling.
+*   [x] Create `src/setup.py`.
+*   [x] Move `setup_logging` function from `src.utils` to `src/setup.py`
+*   [x] Move LangSmith initialization logic (checking `settings.LANGSMITH_API_KEY`, setting environment variables, creating `langsmith_client`) from `main.py` into a function in `src/setup.py` (e.g., `setup_langsmith(settings)`). This function should return the initialized `langsmith_client` (or `None`). *(Dependency `langsmith` already present)*.
+*   [x] Move signal handling logic:
     *   Define a simple class (e.g., `ShutdownManager`) in `src/setup.py` to hold the shutdown state (`_shutdown_requested`).
     *   Move the `signal_handler` function into `src/setup.py`. It should update the state within an instance of `ShutdownManager`.
     *   Create a function `register_signal_handlers(shutdown_manager)` in `src/setup.py` that registers `SIGINT` and `SIGTERM` to call the `signal_handler`.
-*   [ ] Update `main.py`:
+*   [x] Update `main.py`:
     *   Import necessary functions/classes from `src/setup.py`.
     *   Call `setup_logging()` at the beginning.
     *   Create an instance of `ShutdownManager`.
@@ -36,19 +35,19 @@
 
 **3. Processing Logic (`src/processing.py`)**
 
-*   [ ] **Goal:** Isolate the core task of processing URLs.
-*   [ ] Create `src/processing.py`.
-*   [ ] Move the `process_url` function from `main.py` to `src/processing.py`.
+*   [x] **Goal:** Isolate the core task of processing URLs.
+*   [x] Create `src/processing.py`.
+*   [x] Move the `process_url` function from `main.py` to `src/processing.py`.
     *   Ensure it imports necessary dependencies (e.g., `logger`, `app` from `src.graph`, `traceable` if LangSmith is used). *(Dependencies `langgraph`, `langsmith` already present)*.
-*   [ ] Move the URL processing loop logic from `main.py`'s `try` block into a new function in `src/processing.py`, e.g., `run_processing_loop(urls, langgraph_app, shutdown_manager)`.
+*   [x] Move the URL processing loop logic from `main.py`'s `try` block into a new function in `src/processing.py`, e.g., `run_processing_loop(urls, langgraph_app, shutdown_manager)`.
     *   This function should take the list of URLs, the LangGraph `app`, and the `shutdown_manager` instance as arguments.
     *   It should contain the `tqdm` progress bar. *(Dependency `tqdm` already present)*.
     *   Inside the loop, it should check `shutdown_manager.is_shutdown_requested()` before processing each URL.
     *   It should call the `process_url` function (now also in `src/processing.py`).
     *   It should handle the `KeyboardInterrupt` within the loop.
     *   It should return the list of `results` and a boolean `interrupted` flag.
-*   [ ] Move the `load_urls` function to `src/processing.py` (or potentially a new `src/data_loader.py`).
-*   [ ] Update `main.py`:
+*   [x] Move the `load_urls` function to `src/processing.py` (or potentially a new `src/data_loader.py`).
+*   [x] Update `main.py`:
     *   Import `load_urls` and `run_processing_loop` from `src/processing.py`.
     *   Call `load_urls()`.
     *   Call `run_processing_loop()` with the loaded URLs, the LangGraph `app`, and the `shutdown_manager`.

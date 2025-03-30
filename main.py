@@ -1,4 +1,3 @@
-import json
 import os
 import time
 import sys
@@ -8,48 +7,49 @@ import uuid
 from typing import List, Dict, Any
 import pandas as pd
 from pathlib import Path
-from tqdm import tqdm
 
 # Force LangChain to use daemon threads for its handlers
 os.environ["LANGCHAIN_HANDLER_THREAD_DAEMON"] = "true"
 
 # Import our application components
-from src.utils import setup_logging, format_duration
+from src.setup import (
+    setup_logging,
+    setup_langsmith,
+    ShutdownManager,
+    register_signal_handlers,
+)
+from src.utils import format_duration
 from src.graph import app  # This is our compiled LangGraph application
-from src.config import OUTPUT_DIR, OUTPUT_FILENAME, LANGSMITH_API_KEY
+from src.config import settings  # Import the settings object
 from src.schemas import ProfileData
+from src.processing import run_processing_loop, load_urls  # Import load_urls
 
 # Set up logging FIRST
 logger = setup_logging()
 logger.info("Application started.")
 
-# Set up LangSmith tracing if API key is available
-if LANGSMITH_API_KEY:
-    os.environ["LANGCHAIN_TRACING_V2"] = "true"
-    os.environ["LANGCHAIN_API_KEY"] = LANGSMITH_API_KEY
-    os.environ["LANGSMITH_PROJECT"] = os.getenv(
-        "LANGSMITH_PROJECT", "profile-extractor"
-    )
-    logger.info("LangSmith tracing enabled")
+# Set up LangSmith
+langsmith_client = setup_langsmith(settings)
 
-    # Import LangSmith client for aggregate metrics
-    from langsmith import Client, traceable
+# Conditionally import traceable based on langsmith_client initialization
+if langsmith_client:
+    try:
+        from langsmith import traceable
 
-    # Initialize client with auto_batch_tracing disabled
-    langsmith_client = Client(api_key=LANGSMITH_API_KEY, auto_batch_tracing=False)
-    logger.info("LangSmith Client initialized with auto_batch_tracing=False")
-
+        # You might need to explicitly patch or configure traceable further depending on usage
+    except ImportError:
+        logger.warning("'langsmith' package is not installed, tracing disabled.")
+        traceable = lambda func=None, **kwargs: (func if func else lambda f: f)
+    except Exception as e:
+        logger.error(f"Failed to import or setup traceable: {e}")
+        traceable = lambda func=None, **kwargs: (func if func else lambda f: f)
 else:
-    logger.info("LangSmith API key not found, tracing disabled")
-    langsmith_client = None
-    traceable = (
-        lambda func, **kwargs: func
-    )  # No-op traceable when LangSmith is disabled
+    traceable = lambda func=None, **kwargs: (
+        func if func else lambda f: f
+    )  # No-op traceable
 
 # Initialize a cleanup flag to prevent duplicate cleanup
 _cleanup_done = False
-# Add a flag to signal graceful shutdown request
-_shutdown_requested = False
 
 
 def cleanup_resources():
@@ -129,89 +129,6 @@ def cleanup_resources():
     logger.info("Cleanup complete")
 
 
-# Register signal handlers for graceful shutdown
-def signal_handler(signum, frame):
-    global _shutdown_requested
-    logger.info(f"Received signal {signum}, requesting graceful shutdown...")
-    _shutdown_requested = True
-    # Do not exit here; let the main loop handle it
-
-
-# Register signal handlers
-signal.signal(signal.SIGINT, signal_handler)
-signal.signal(signal.SIGTERM, signal_handler)
-
-
-def load_urls() -> List[str]:
-    """Load URLs from the data directory."""
-    data_dir = Path("data")
-    urls_file = data_dir / "uidaho_urls.json"
-
-    if not urls_file.exists():
-        raise FileNotFoundError(f"URLs file not found at {urls_file}")
-
-    with open(urls_file, "r") as f:
-        urls = json.load(f)
-
-    logger.info(f"Loaded {len(urls)} URLs from {urls_file}")
-    return urls
-
-
-@traceable(name="Process URL")
-def process_url(url: str, thread_id: str = None) -> Dict[str, Any]:
-    """Process a single URL through the graph workflow.
-
-    Args:
-        url: The URL to process
-        thread_id: Optional thread ID for LangSmith tracing
-
-    Returns:
-        The final state after processing
-    """
-    logger.info(f"Processing URL: {url}")
-
-    # Generate thread_id if not provided (for tracing)
-    if thread_id is None:
-        thread_id = f"profile-{uuid.uuid4()}"
-
-    # Set up metadata for LangSmith tracing
-    langsmith_extra = {"metadata": {"thread_id": thread_id, "url": url}}
-
-    # Initialize state for this URL
-    initial_state = {
-        "url": url,
-        "metrics": {},
-        "error": None,
-        "error_details": None,
-        "html_content": None,
-        "preprocessed_content": None,
-        "extracted_data": None,
-        "validation_result": None,
-        "thread_id": thread_id,  # Include thread_id in state for nodes to access
-    }
-
-    try:
-        # Process the URL through our graph
-        # The traceable decorator will ensure this is traced as part of the thread
-        # Force sequential execution within the graph to avoid hanging thread pools
-        final_state = app.invoke(initial_state, config={"max_concurrency": 1})
-        logger.info(f"Completed processing {url}")
-
-        # Add thread info to metrics for reporting
-        final_state["metrics"]["thread_id"] = thread_id
-
-        return final_state
-    except Exception as e:
-        logger.error(f"Error processing {url}: {str(e)}")
-        return {
-            "url": url,
-            "thread_id": thread_id,
-            "error": str(e),
-            "error_details": {"exception": type(e).__name__},
-            "metrics": {"thread_id": thread_id},
-        }
-
-
 def calculate_metrics(results: List[Dict[str, Any]]) -> Dict[str, Any]:
     """Calculate aggregate metrics from the results."""
     metrics = {
@@ -236,7 +153,7 @@ def calculate_metrics(results: List[Dict[str, Any]]) -> Dict[str, Any]:
 
             # Get token counts from LangSmith traces
             runs = langsmith_client.list_runs(
-                project_name=os.getenv("LANGSMITH_PROJECT", "profile-extractor"),
+                project_name=settings.LANGSMITH_PROJECT,
                 start_time=start_time,
             )
 
@@ -387,7 +304,7 @@ def calculate_metrics(results: List[Dict[str, Any]]) -> Dict[str, Any]:
 def save_results(results: List[Dict[str, Any]], metrics: Dict[str, Any]):
     """Save extracted profiles to Excel and log metrics."""
     # Create output directory if it doesn't exist
-    output_dir = Path(OUTPUT_DIR)
+    output_dir = Path(settings.OUTPUT_DIR)
     output_dir.mkdir(exist_ok=True)
 
     # Extract successful profiles
@@ -414,14 +331,14 @@ def save_results(results: List[Dict[str, Any]], metrics: Dict[str, Any]):
     if successful_profiles:
         # Convert to DataFrame and save to Excel
         df = pd.DataFrame(successful_profiles)
-        output_file = output_dir / OUTPUT_FILENAME
+        output_file = output_dir / settings.OUTPUT_FILENAME
         df.to_excel(output_file, index=False)
         logger.info(f"Saved {len(successful_profiles)} profiles to {output_file}")
 
         # Save unsuccessful profiles if any
         if unsuccessful_profiles:
             error_df = pd.DataFrame(unsuccessful_profiles)
-            error_file = output_dir / f"errors_{OUTPUT_FILENAME}"
+            error_file = output_dir / f"errors_{settings.OUTPUT_FILENAME}"
             error_df.to_excel(error_file, index=False)
             logger.info(
                 f"Saved {len(unsuccessful_profiles)} error reports to {error_file}"
@@ -434,7 +351,7 @@ def save_results(results: List[Dict[str, Any]], metrics: Dict[str, Any]):
         logger.warning("No successful profiles to save!")
         if unsuccessful_profiles:
             error_df = pd.DataFrame(unsuccessful_profiles)
-            error_file = output_dir / f"errors_{OUTPUT_FILENAME}"
+            error_file = output_dir / f"errors_{settings.OUTPUT_FILENAME}"
             error_df.to_excel(error_file, index=False)
             logger.info(
                 f"Saved {len(unsuccessful_profiles)} error reports to {error_file}"
@@ -463,56 +380,43 @@ def save_results(results: List[Dict[str, Any]], metrics: Dict[str, Any]):
         logger.info(f"Average processing time: {avg_time_str}")
 
 
-@traceable(name="Profile Extraction Process")
 def main():
     """Main entry point for the profile extraction process."""
     start_time = time.time()  # Record start time
+
+    # Initialize Shutdown Manager
+    shutdown_manager = ShutdownManager()
+
+    # Register Signal Handlers
+    register_signal_handlers(shutdown_manager)
 
     # Create a session_id for this run to group all profiles in LangSmith
     session_id = f"extraction-session-{uuid.uuid4()}"
     logger.info(f"Starting extraction session: {session_id}")
 
+    results = []  # Initialize results list
+    interrupted = False  # Initialize interrupted flag
+
     try:
         # Load URLs to process
         urls = load_urls()
 
-        # Process each URL with a progress bar
-        results = []
-        interrupted = False  # Flag to track if loop was interrupted
-        try:
-            for url in tqdm(
-                urls, desc="Processing URLs", unit="profile", position=0, leave=True
-            ):
-                # Check for shutdown signal before processing next URL
-                if _shutdown_requested:
-                    logger.warning("Shutdown requested, stopping URL processing...")
-                    interrupted = True
-                    break  # Exit the loop gracefully
+        # Run the main processing loop
+        results, interrupted = run_processing_loop(urls, shutdown_manager)
 
-                # Generate a unique thread_id for each profile's extraction process
-                profile_thread_id = f"profile-{uuid.uuid4()}"
-
-                # Process with thread tracking
-                result = process_url(url, thread_id=profile_thread_id)
-                results.append(result)
-                # Optional: Add a small delay between processing URLs
-                time.sleep(0.5)
-        except KeyboardInterrupt:
-            # This handles Ctrl+C *during* the tqdm loop or process_url call
-            logger.warning(
-                "Keyboard interrupt detected during processing loop. Stopping gracefully..."
-            )
-            interrupted = True
-
-        # --- Saving Logic (runs after loop, even if interrupted) ---
+        # --- Metrics Calculation (moved from inside the loop logic) ---
         metrics = {}  # Initialize metrics dictionary
         if interrupted:
             logger.info(
-                f"Processed {len(results)} out of {len(urls)} URLs before interruption."
+                f"Processing was interrupted. Calculating metrics for {len(results)} completed URLs."
             )
+        elif not results:
+            logger.warning("No results were generated. Skipping metrics calculation.")
 
-        # Calculate metrics in a separate thread only if not interrupted and we have results
-        if not _shutdown_requested and results:
+        # Calculate metrics if processing wasn't shut down *before* the loop finished
+        # and if there are results to process.
+        # Note: _shutdown_requested check might be redundant if run_processing_loop guarantees completion before shutdown flag check
+        if not shutdown_manager.is_shutdown_requested() and results:
             metrics_thread = None
             thread_metrics_result = [{}]  # Use list/dict to allow thread modification
 
@@ -538,14 +442,14 @@ def main():
 
                 # Wait for the thread, but make the wait interruptible
                 while metrics_thread.is_alive():
-                    if _shutdown_requested:
+                    if shutdown_manager.is_shutdown_requested():
                         logger.warning(
                             "Shutdown requested during metrics calculation. Proceeding without waiting for full metrics."
                         )
                         break  # Exit the waiting loop
                     metrics_thread.join(timeout=0.5)  # Check flag every 0.5s
                 else:  # Loop finished because thread completed (no break)
-                    if not _shutdown_requested:
+                    if not shutdown_manager.is_shutdown_requested():
                         metrics = thread_metrics_result[0]  # Get results from thread
                         logger.info("Metrics calculation thread finished.")
                     else:
@@ -562,7 +466,7 @@ def main():
                         "Metrics thread might still be running in background after error."
                     )
 
-        elif _shutdown_requested:
+        elif shutdown_manager.is_shutdown_requested():
             logger.warning(
                 "Skipping metrics calculation due to pending shutdown request."
             )

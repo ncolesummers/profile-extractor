@@ -5,58 +5,7 @@ import json
 import time  # Added for format_duration
 from datetime import datetime
 from pathlib import Path
-from .config import LOG_TO_FILE, LOG_FILE_PATH  # Import logging configuration
 import tiktoken
-
-
-def setup_logging(level=logging.INFO):
-    """Configures the root logger for the application."""
-    log_formatter = logging.Formatter(
-        "%(asctime)s [%(levelname)s] %(name)s: %(message)s",
-        datefmt="%Y-%m-%d %H:%M:%S",
-    )
-    root_logger = logging.getLogger()
-    root_logger.setLevel(level)
-
-    # Clear existing handlers to avoid duplicate logs if called multiple times
-    if root_logger.hasHandlers():
-        root_logger.handlers.clear()
-
-    # Console handler
-    console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setFormatter(log_formatter)
-    root_logger.addHandler(console_handler)
-
-    # Add file handler if configured
-    if LOG_TO_FILE:
-        try:
-            log_path = Path(LOG_FILE_PATH)
-            # Create directory if it doesn't exist
-            log_path.parent.mkdir(parents=True, exist_ok=True)
-            # Add timestamp to filename
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            log_filename = f"{log_path.stem}_{timestamp}{log_path.suffix}"
-            final_log_path = log_path.parent / log_filename
-
-            file_handler = logging.FileHandler(final_log_path)
-            file_handler.setFormatter(log_formatter)
-            root_logger.addHandler(file_handler)
-            root_logger.info(
-                f"Logging to file: {final_log_path}"
-            )  # Log the actual path used
-        except PermissionError:
-            root_logger.warning(
-                f"Could not open log file {LOG_FILE_PATH} for writing. "
-                f"File logging disabled."
-            )
-        except Exception as e:
-            root_logger.warning(
-                f"Failed to set up file logging to {LOG_FILE_PATH}: {e}. "
-                f"File logging disabled."
-            )
-
-    root_logger.info("Logging configured.")
-    return root_logger
 
 
 def dump_debug_info(state, debug_dir="logs/debug"):
