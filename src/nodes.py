@@ -18,6 +18,8 @@ from langchain_core.exceptions import (
 )  # Handles parsing issues with structured output
 from pydantic import ValidationError  # Handles Pydantic validation issues
 from google.api_core import exceptions as google_exceptions  # For Google API errors
+from langchain.output_parsers import PydanticOutputParser
+from .utils import dump_debug_info
 
 # Import schemas
 from .schemas import ProfileData, ValidationResult, ValidationStatus
@@ -274,6 +276,7 @@ def extract_data(state: GraphState) -> GraphState:
             model=config.MODEL_NAME,
             temperature=config.LLM_TEMPERATURE,
             google_api_key=config.GOOGLE_API_KEY,
+            stream_usage=True,  # Attempt to enable usage metadata
         )
 
         # Use structured output with our Pydantic model
@@ -296,63 +299,103 @@ def extract_data(state: GraphState) -> GraphState:
         )
 
         # Create the extraction chain
-        chain = prompt | structured_llm
+        parser = PydanticOutputParser(pydantic_object=ProfileData)
+        chain = prompt | llm  # Chain now outputs AIMessage
 
         print("Invoking LLM for data extraction...")
-        # --- Invocation and Metadata Handling ---
-        result = chain.invoke({"page_content": preprocessed_content})
+        # --- Invocation and Metadata Handling ---\
+        ai_message = chain.invoke({"page_content": preprocessed_content})
 
-        if isinstance(result, ProfileData):
-            extracted_profile = result
-            # AI Engineer Note: Accessing token usage. Structure may vary slightly based on Langchain version.
-            # Check the actual result object's structure during testing if this fails.
-            # Often it's in response_metadata or result.lc_run_info.run_id -> get run -> usage_metadata
-            # Simplified access assuming direct metadata:
-            usage_metadata = getattr(result, "response_metadata", {}).get(
-                "usage_metadata", {}
+        # --- Extract Metadata ---
+        # AI Engineer Note: Accessing token usage from AIMessage.response_metadata
+        usage_metadata = getattr(ai_message, "response_metadata", {}).get(
+            "usage_metadata", {}
+        )
+        input_tokens = usage_metadata.get("prompt_token_count", 0)
+        output_tokens = usage_metadata.get(
+            "candidates_token_count", 0
+        )  # Gemini often uses this field
+        total_tokens = usage_metadata.get(
+            "total_token_count", input_tokens + output_tokens
+        )
+
+        if input_tokens > 0 or output_tokens > 0:
+            cost = calculate_cost(input_tokens, output_tokens)
+            print(
+                f"LLM call successful. Tokens - Input: {input_tokens}, Output: {output_tokens}, Total: {total_tokens}. Estimated Cost: ${cost:.6f}"
             )
-            input_tokens = usage_metadata.get("prompt_token_count", 0)
-            output_tokens = usage_metadata.get(
-                "candidates_token_count", 0
-            )  # Gemini often uses this field
-            total_tokens = usage_metadata.get(
-                "total_token_count", input_tokens + output_tokens
-            )
-
-            if input_tokens > 0 or output_tokens > 0:
-                cost = calculate_cost(input_tokens, output_tokens)
-                print(
-                    f"Extraction successful. Tokens - Input: {input_tokens}, Output: {output_tokens}, Total: {total_tokens}. Estimated Cost: ${cost:.6f}"
-                )
-            else:
-                print(
-                    "Extraction successful, but could not retrieve token usage metadata."
-                )
-                # Maybe try getting it from LangSmith if integrated
-
-            # Add source_url to the extracted data
-            extracted_profile.source_url = state["url"]
-
         else:
-            # Should not happen with with_structured_output if successful, but good to check
-            error_message = "LLM did not return a valid ProfileData object."
-            error_details_dict = {"message": error_message, "llm_output": str(result)}
-            print(f"Error: {error_message}")
+            # This case might still happen if the API response structure changes or lacks metadata
+            print("LLM call successful, but could not retrieve token usage metadata.")
+
+        # --- Parse the Output ---
+        try:
+            # NEW: Handle potential list wrapping from LLM
+            raw_content = ai_message.content
+            # Strip potential markdown code fences
+            if raw_content.strip().startswith("```json"):
+                raw_content = raw_content.strip()[7:-3].strip()
+            elif raw_content.strip().startswith("```"):
+                raw_content = raw_content.strip()[3:-3].strip()
+
+            parsed_json = json.loads(raw_content)
+            if isinstance(parsed_json, list) and len(parsed_json) == 1:
+                target_obj = parsed_json[0]
+                print("LLM returned a list, extracting first element.")
+            elif isinstance(parsed_json, dict):
+                target_obj = parsed_json
+            else:
+                raise ValueError(
+                    "LLM output is not a JSON object or a list containing a single object."
+                )
+
+            # Ensure source_url is added to the target object
+            target_obj["source_url"] = state["url"]
+
+            # More robust Pydantic parsing
+            try:
+                # First try parsing using the parser
+                extracted_profile = parser.parse(json.dumps(target_obj))
+            except (OutputParserException, ValidationError) as e:
+                # If that fails, try direct instantiation with model validation
+                try:
+                    extracted_profile = ProfileData(**target_obj)
+                except ValidationError as ve:
+                    # If direct instantiation also fails, provide more details and re-raise
+                    print(f"ValidationError: {ve}")
+                    print(f"Target object: {target_obj}")
+                    raise
+
+            print("Successfully parsed LLM output into ProfileData.")
+
+        except json.JSONDecodeError as e:
+            # Handle JSON decoding errors
+            error_message = "Failed to decode LLM output as JSON"
+            error_details_dict = {
+                "exception_type": type(e).__name__,
+                "message": str(e),
+                "llm_content": ai_message.content,  # Include raw content
+                "traceback": traceback.format_exc(),
+            }
+            print(f"Error: {error_message} - {e}")
+            extracted_profile = None
+        except (OutputParserException, ValidationError, ValueError) as e:
+            # Handle parsing/validation errors
+            error_message = "LLM output failed validation/parsing after successful call"
+            error_details_dict = {
+                "exception_type": type(e).__name__,
+                "message": str(e),
+                "llm_content": ai_message.content,  # Include raw content for debugging
+                "traceback": traceback.format_exc(),
+            }
+            print(f"Error: {error_message} - {e}")
+            extracted_profile = None
 
     except (
         google_exceptions.GoogleAPIError,
         requests.exceptions.RequestException,
     ) as e:
         error_message = f"LLM API request failed: {type(e).__name__}"
-        error_details_dict = {
-            "exception_type": type(e).__name__,
-            "message": str(e),
-            "traceback": traceback.format_exc(),
-        }
-        print(f"Error: {error_message} - {e}")
-    except (OutputParserException, ValidationError) as e:
-        error_message = "LLM output failed validation/parsing"
-        # Attempt to include the problematic LLM output if possible (might be in exception details)
         error_details_dict = {
             "exception_type": type(e).__name__,
             "message": str(e),
@@ -386,6 +429,12 @@ def extract_data(state: GraphState) -> GraphState:
         "error": state.get("error") or error_message,
         "error_details": state.get("error_details") or error_details_dict,
     }
+
+    # Dump debug info if there was an error in extraction
+    if error_message:
+        debug_file = dump_debug_info(updated_state, debug_dir="logs/debug/extraction")
+        print(f"Extraction debug info saved to {debug_file}")
+
     return updated_state
 
 
@@ -435,6 +484,7 @@ def validate_data(state: GraphState) -> GraphState:
             model=config.JUDGE_MODEL_NAME,
             temperature=config.JUDGE_TEMPERATURE,
             google_api_key=config.GOOGLE_API_KEY,
+            stream_usage=True,  # Attempt to enable usage metadata
         )
 
         # Use structured output with our ValidationResult schema
@@ -451,59 +501,172 @@ def validate_data(state: GraphState) -> GraphState:
             [
                 (
                     "system",
-                    f"You are an impartial evaluator assessing the accuracy of extracted information based *only* on the provided source text. "
-                    f"Compare the fields in the 'Extracted Data' JSON object against the 'Source Text'. "
-                    f"For each field in the {ValidationResult.__name__} schema (except overall_comment), determine its status: "
-                    f"- '{ValidationStatus.CORRECT}': The extracted value is present and accurate in the Source Text.\\n"
-                    f"- '{ValidationStatus.INCORRECT}': The extracted value is present but inaccurate compared to the Source Text, or it was hallucinated (not found in Source Text).\\n"
-                    f"- '{ValidationStatus.MISSING}': The information exists in the Source Text, but it was *not* extracted (the corresponding field in Extracted Data is missing/null or incorrect value type).\\n"
-                    f"- '{ValidationStatus.NOT_APPLICABLE}': The field is inherently not applicable for validation (e.g., source_url was input, not extracted).\\n"
-                    f"Output your evaluation precisely matching the {ValidationResult.__name__} schema.",
+                    "You are an expert assistant tasked with validating the accuracy of extracted faculty profile information. "
+                    "Compare the extracted data against the source text and determine if each field is correct, missing, "
+                    "or not applicable. Return your assessment in the requested structured format.\n\n"
+                    "YOUR RESPONSE MUST BE A VALID JSON OBJECT WITH THE FOLLOWING STRUCTURE:\n"
+                    "{{\n"
+                    '  "photo_url_status": "Correct", "Incorrect", "Missing", or "Not Applicable",\n'
+                    '  "first_name_status": "Correct", "Incorrect", "Missing", or "Not Applicable",\n'
+                    '  "middle_name_status": "Correct", "Incorrect", "Missing", or "Not Applicable",\n'
+                    '  "last_name_status": "Correct", "Incorrect", "Missing", or "Not Applicable",\n'
+                    '  "title_status": "Correct", "Incorrect", "Missing", or "Not Applicable",\n'
+                    '  "office_status": "Correct", "Incorrect", "Missing", or "Not Applicable",\n'
+                    '  "phone_status": "Correct", "Incorrect", "Missing", or "Not Applicable",\n'
+                    '  "email_status": "Correct", "Incorrect", "Missing", or "Not Applicable",\n'
+                    '  "college_unit_status": "Correct", "Incorrect", "Missing", or "Not Applicable",\n'
+                    '  "department_division_status": "Correct", "Incorrect", "Missing", or "Not Applicable",\n'
+                    '  "degrees_status": "Correct", "Incorrect", "Missing", or "Not Applicable",\n'
+                    '  "research_focus_areas_status": "Correct", "Incorrect", "Missing", or "Not Applicable",\n'
+                    '  "overall_comment": "Your overall assessment and reasoning"\n'
+                    "}}\n"
+                    "Do not nest, format differently, or add extra fields to this structure.",
                 ),
                 (
                     "human",
-                    "Source Text:\\n---\\n{page_content}\\n---\\n\\nExtracted Data:\\n---\\n{extracted_json}\\n---\n\\nPlease evaluate the Extracted Data based on the Source Text and provide the results in the required format.",
+                    "Please validate the following extracted faculty profile data against the source text:"
+                    "\n\nSOURCE TEXT:\n{source_text}\n\nEXTRACTED DATA:\n{extracted_data}\n\n"
+                    "For each field, determine if the extraction is Correct, Incorrect, Missing, or Not Applicable.",
                 ),
             ]
         )
 
-        # Create the validation chain
-        judge_chain = judge_prompt | judge_structured_llm
+        # Create the judgment chain
+        judge_parser = PydanticOutputParser(pydantic_object=ValidationResult)
+        judge_chain = judge_prompt | judge_llm  # LLM will output AIMessage
 
         print("Invoking LLM Judge for validation...")
         # --- Invocation and Metadata Handling ---
-        result = judge_chain.invoke(
-            {"page_content": preprocessed_content, "extracted_json": extracted_data_str}
+        judge_ai_message = judge_chain.invoke(
+            {
+                "source_text": preprocessed_content,
+                "extracted_data": extracted_data_str,
+            }
         )
 
-        if isinstance(result, ValidationResult):
-            validation_result = result
-            # AI Engineer Note: Accessing token usage - assuming similar structure to extraction node.
-            usage_metadata = getattr(result, "response_metadata", {}).get(
-                "usage_metadata", {}
-            )
-            judge_input_tokens = usage_metadata.get("prompt_token_count", 0)
-            judge_output_tokens = usage_metadata.get("candidates_token_count", 0)
-            total_tokens = usage_metadata.get(
-                "total_token_count", judge_input_tokens + judge_output_tokens
-            )
+        # --- Extract Metadata ---
+        judge_usage_metadata = getattr(judge_ai_message, "response_metadata", {}).get(
+            "usage_metadata", {}
+        )
+        judge_input_tokens = judge_usage_metadata.get("prompt_token_count", 0)
+        judge_output_tokens = judge_usage_metadata.get("candidates_token_count", 0)
+        judge_total_tokens = judge_usage_metadata.get(
+            "total_token_count", judge_input_tokens + judge_output_tokens
+        )
 
-            if judge_input_tokens > 0 or judge_output_tokens > 0:
-                judge_cost = calculate_cost(
-                    judge_input_tokens, judge_output_tokens
-                )  # Reuse cost function
-                print(
-                    f"Validation successful. Judge Tokens - Input: {judge_input_tokens}, Output: {judge_output_tokens}, Total: {total_tokens}. Estimated Cost: ${judge_cost:.6f}"
-                )
-            else:
-                print(
-                    "Validation successful, but could not retrieve judge token usage metadata."
-                )
-
+        if judge_input_tokens > 0 or judge_output_tokens > 0:
+            judge_cost = calculate_cost(judge_input_tokens, judge_output_tokens)
+            print(
+                f"LLM Judge call successful. Tokens - Input: {judge_input_tokens}, Output: {judge_output_tokens}, "
+                f"Total: {judge_total_tokens}. Estimated Cost: ${judge_cost:.6f}"
+            )
         else:
-            error_message = "LLM Judge did not return a valid ValidationResult object."
-            error_details_dict = {"message": error_message, "llm_output": str(result)}
-            print(f"Error: {error_message}")
+            print(
+                "LLM Judge call successful, but could not retrieve judge token usage metadata."
+            )
+
+        # --- Parse the Output ---
+        try:
+            # Extract the raw content from the LLM response
+            raw_content = judge_ai_message.content
+            # Strip potential markdown code fences
+            if raw_content.strip().startswith("```json"):
+                raw_content = raw_content.strip()[7:-3].strip()
+            elif raw_content.strip().startswith("```"):
+                raw_content = raw_content.strip()[3:-3].strip()
+
+            # Enhanced parsing logic with more robust error handling
+            try:
+                # First attempt: direct JSON parsing
+                response_json = json.loads(raw_content)
+            except json.JSONDecodeError:
+                # Second attempt: try to extract JSON from text that might contain explanations
+                import re
+
+                json_pattern = r"\{[\s\S]*\}"
+                json_match = re.search(json_pattern, raw_content)
+                if json_match:
+                    try:
+                        response_json = json.loads(json_match.group(0))
+                    except json.JSONDecodeError:
+                        # If still failing, raise the original error
+                        raise
+                else:
+                    # If no JSON-like pattern found, raise
+                    raise ValueError("Could not find JSON object in LLM response")
+
+            # Create a dictionary with default values for all required fields
+            validation_values = {
+                "photo_url_status": "Not Applicable",
+                "first_name_status": "Not Applicable",
+                "middle_name_status": "Not Applicable",
+                "last_name_status": "Not Applicable",
+                "title_status": "Not Applicable",
+                "office_status": "Not Applicable",
+                "phone_status": "Not Applicable",
+                "email_status": "Not Applicable",
+                "college_unit_status": "Not Applicable",
+                "department_division_status": "Not Applicable",
+                "degrees_status": "Not Applicable",
+                "research_focus_areas_status": "Not Applicable",
+                "overall_comment": "Validation performed with limited information.",
+            }
+
+            # Attempt to map the LLM output to our expected fields
+            if "overall_comment" in response_json:
+                validation_values["overall_comment"] = response_json["overall_comment"]
+
+            # Mapping of possible field names to our schema names
+            field_mappings = {
+                "photo_url": "photo_url_status",
+                "first_name": "first_name_status",
+                "middle_name": "middle_name_status",
+                "last_name": "last_name_status",
+                "title": "title_status",
+                "office": "office_status",
+                "phone": "phone_status",
+                "email": "email_status",
+                "college_unit": "college_unit_status",
+                "department_division": "department_division_status",
+                "degrees": "degrees_status",
+                "research_focus_areas": "research_focus_areas_status",
+            }
+
+            # Try to extract status information from the response
+            for field, status_field in field_mappings.items():
+                if field in response_json and "status" in response_json[field]:
+                    validation_values[status_field] = response_json[field]["status"]
+                elif field + "_status" in response_json:
+                    validation_values[status_field] = response_json[field + "_status"]
+
+            # Create the ValidationResult manually
+            validation_result = ValidationResult(**validation_values)
+            print("Successfully parsed LLM Judge output into ValidationResult.")
+
+        except json.JSONDecodeError as e:
+            # Handle JSON decoding errors
+            error_message = "Failed to decode LLM Judge output as JSON"
+            error_details_dict = {
+                "exception_type": type(e).__name__,
+                "message": str(e),
+                "llm_content": judge_ai_message.content,  # Include raw content
+                "traceback": traceback.format_exc(),
+            }
+            print(f"Error: {error_message} - {e}")
+            validation_result = None
+        except (OutputParserException, ValidationError, ValueError) as e:
+            # Handle parsing/validation errors
+            error_message = (
+                "LLM Judge output failed validation/parsing after successful call"
+            )
+            error_details_dict = {
+                "exception_type": type(e).__name__,
+                "message": str(e),
+                "llm_content": judge_ai_message.content,  # Include raw content for debugging
+                "traceback": traceback.format_exc(),
+            }
+            print(f"Error: {error_message} - {e}")
+            validation_result = None
 
     except (
         google_exceptions.GoogleAPIError,
@@ -516,16 +679,8 @@ def validate_data(state: GraphState) -> GraphState:
             "traceback": traceback.format_exc(),
         }
         print(f"Error: {error_message} - {e}")
-    except (OutputParserException, ValidationError) as e:
-        error_message = "LLM Judge output failed validation/parsing"
-        error_details_dict = {
-            "exception_type": type(e).__name__,
-            "message": str(e),
-            "traceback": traceback.format_exc(),
-        }
-        print(f"Error: {error_message} - {e}")
     except Exception as e:
-        error_message = "An unexpected error occurred during data validation"
+        error_message = "An unexpected error occurred during validation"
         error_details_dict = {
             "exception_type": type(e).__name__,
             "message": str(e),
@@ -536,22 +691,25 @@ def validate_data(state: GraphState) -> GraphState:
     finally:
         validate_end_time = time.time()
         metrics["validation_time_ms"] = (validate_end_time - validate_start_time) * 1000
-        metrics["judge_input_tokens"] = judge_input_tokens
-        metrics["judge_output_tokens"] = judge_output_tokens
-        metrics["cost_per_profile_validation"] = (
-            judge_cost  # Store validation cost separately
-        )
+        metrics["validation_input_tokens"] = judge_input_tokens
+        metrics["validation_output_tokens"] = judge_output_tokens
+        metrics["cost_per_profile_validation"] = judge_cost
         print(f"Validation took {metrics['validation_time_ms']:.2f} ms")
 
     # --- Update State --- #
     updated_state: GraphState = {
         **state,  # type: ignore
-        "validation_result": validation_result,  # Will be None if validation skipped or failed
+        "validation_result": validation_result,
         "metrics": metrics,
-        # Preserve previous errors, but allow validation errors to be surfaced if they occur
         "error": state.get("error") or error_message,
         "error_details": state.get("error_details") or error_details_dict,
     }
+
+    # Dump debug info if there was an error in validation
+    if error_message:
+        debug_file = dump_debug_info(updated_state, debug_dir="logs/debug/validation")
+        print(f"Validation debug info saved to {debug_file}")
+
     return updated_state
 
 

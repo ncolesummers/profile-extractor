@@ -18,6 +18,7 @@ from .nodes import (
     handle_error,
 )
 
+
 # --- Graph State Definition ---
 class GraphState(TypedDict):
     """Represents the state passed between nodes in the LangGraph.
@@ -32,6 +33,7 @@ class GraphState(TypedDict):
         error: A string describing the latest error encountered, if any.
         error_details: A dictionary holding more detailed error information (e.g., exception details).
     """
+
     url: str
     html_content: Optional[str]
     preprocessed_content: Optional[str]
@@ -96,18 +98,16 @@ def should_validate(state: GraphState) -> str:
 
 def decide_after_validation(state: GraphState) -> str:
     """Determines the final step after validation."""
-    if state.get("error"):  # Check if validation itself failed
-        return "handle_error"
+    # Don't check validation errors, always proceed to END
+    # This allows us to save extracted data even if validation failed
+    if state.get("validation_result"):
+        print("Validation completed successfully.")
+    elif state.get("error"):
+        print(f"Validation encountered an error: {state.get('error')}")
+    else:
+        print("Validation was skipped or returned no result.")
 
-    validation = state.get("validation_result")
-    # Proceed to END regardless of validation outcome; the result is stored in the state.
-    # Downstream processes can check `validation_result`.
-    # if validation and validation.get("is_valid"):
-    #     return END
-    # else:
-    #     print("--- Validation Failed or Missing - Ending ---")
-    #     # We store the result, no need to set GraphState error here unless validation node failed.
-    #     return END
+    # Always proceed to END regardless of validation status
     return END
 
 

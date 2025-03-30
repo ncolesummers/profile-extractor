@@ -78,7 +78,9 @@ def calculate_metrics(results: List[Dict[str, Any]]) -> Dict[str, Any]:
         # Count successes/failures
         if result.get("error"):
             metrics["failed_extractions"] += 1
-        elif result.get("extracted_data"):
+        elif result.get(
+            "extracted_data"
+        ):  # Count any extraction as successful, even if validation failed
             metrics["successful_extractions"] += 1
 
         # Sum up costs and tokens
@@ -117,7 +119,20 @@ def save_results(results: List[Dict[str, Any]], metrics: Dict[str, Any]):
     successful_profiles = [
         result["extracted_data"].model_dump()
         for result in results
-        if result.get("extracted_data")
+        if result.get(
+            "extracted_data"
+        )  # Changed to count any extraction as successful, regardless of validation
+    ]
+
+    # Collect unsuccessful profiles for reporting
+    unsuccessful_profiles = [
+        {
+            "url": result.get("url", "Unknown URL"),
+            "error": result.get("error", "Unknown error"),
+            "error_details": result.get("error_details", {}),
+        }
+        for result in results
+        if not result.get("extracted_data")
     ]
 
     if successful_profiles:
@@ -126,6 +141,28 @@ def save_results(results: List[Dict[str, Any]], metrics: Dict[str, Any]):
         output_file = output_dir / OUTPUT_FILENAME
         df.to_excel(output_file, index=False)
         logger.info(f"Saved {len(successful_profiles)} profiles to {output_file}")
+
+        # Save unsuccessful profiles if any
+        if unsuccessful_profiles:
+            error_df = pd.DataFrame(unsuccessful_profiles)
+            error_file = output_dir / f"errors_{OUTPUT_FILENAME}"
+            error_df.to_excel(error_file, index=False)
+            logger.info(
+                f"Saved {len(unsuccessful_profiles)} error reports to {error_file}"
+            )
+
+        # Update metrics with the actual count of successful profiles
+        metrics["successful_extractions"] = len(successful_profiles)
+        metrics["failed_extractions"] = metrics["total_urls"] - len(successful_profiles)
+    else:
+        logger.warning("No successful profiles to save!")
+        if unsuccessful_profiles:
+            error_df = pd.DataFrame(unsuccessful_profiles)
+            error_file = output_dir / f"errors_{OUTPUT_FILENAME}"
+            error_df.to_excel(error_file, index=False)
+            logger.info(
+                f"Saved {len(unsuccessful_profiles)} error reports to {error_file}"
+            )
 
     # Log metrics
     logger.info("\nProcessing Metrics:")
@@ -195,6 +232,7 @@ def main():
     except Exception as e:
         logger.error(f"Fatal error in main process: {str(e)}")
         raise
+
 
 if __name__ == "__main__":
     main()

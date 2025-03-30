@@ -1,385 +1,275 @@
-2025-03-29 17:49:18 [INFO] root: Logging configured.
-2025-03-29 17:55:06 [INFO] root: Logging configured.
-2025-03-29 17:56:19 [INFO] root: Logging configured.
-2025-03-29 17:56:19 [INFO] root: Application started.
-2025-03-29 17:56:19 [INFO] root: Loaded 99 URLs from data\uidaho_urls.json
-2025-03-29 17:56:19 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/savanah-nunes
-2025-03-29 17:56:22 [WARNING] langchain_google_genai.chat_models: Retrying langchain_google_genai.chat_models._chat_with_retry.<locals>._chat_with_retry in 2.0 seconds as it raised NotFound: 404 models/gemini-2.0-flash-latest is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods..
-2025-03-29 17:56:24 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/savanah-nunes
-2025-03-29 17:56:25 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/steve-greene
-2025-03-29 17:56:28 [WARNING] langchain_google_genai.chat_models: Retrying langchain_google_genai.chat_models._chat_with_retry.<locals>._chat_with_retry in 2.0 seconds as it raised NotFound: 404 models/gemini-2.0-flash-latest is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods..
-2025-03-29 17:56:30 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/steve-greene
-2025-03-29 17:56:31 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/amy-calabretta
-2025-03-29 17:56:34 [WARNING] langchain_google_genai.chat_models: Retrying langchain_google_genai.chat_models._chat_with_retry.<locals>._chat_with_retry in 2.0 seconds as it raised NotFound: 404 models/gemini-2.0-flash-latest is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods..
-2025-03-29 17:56:36 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/amy-calabretta
-2025-03-29 17:56:36 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/angela-harley
-2025-03-29 17:56:39 [WARNING] langchain_google_genai.chat_models: Retrying langchain_google_genai.chat_models._chat_with_retry.<locals>._chat_with_retry in 2.0 seconds as it raised NotFound: 404 models/gemini-2.0-flash-latest is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods..
-2025-03-29 17:56:41 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/angela-harley
-2025-03-29 17:56:42 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/ann-barrington
-2025-03-29 17:56:45 [WARNING] langchain_google_genai.chat_models: Retrying langchain_google_genai.chat_models._chat_with_retry.<locals>._chat_with_retry in 2.0 seconds as it raised NotFound: 404 models/gemini-2.0-flash-latest is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods..
-2025-03-29 17:56:47 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/ann-barrington
-2025-03-29 17:56:47 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/ashley-baker
-2025-03-29 17:56:50 [WARNING] langchain_google_genai.chat_models: Retrying langchain_google_genai.chat_models._chat_with_retry.<locals>._chat_with_retry in 2.0 seconds as it raised NotFound: 404 models/gemini-2.0-flash-latest is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods..
-2025-03-29 17:56:52 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/ashley-baker
-2025-03-29 17:56:53 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/brandi-chastain
-2025-03-29 17:56:56 [WARNING] langchain_google_genai.chat_models: Retrying langchain_google_genai.chat_models._chat_with_retry.<locals>._chat_with_retry in 2.0 seconds as it raised NotFound: 404 models/gemini-2.0-flash-latest is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods..
-2025-03-29 17:56:58 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/brandi-chastain
-2025-03-29 17:56:58 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/brian-kelly
-2025-03-29 17:57:01 [WARNING] langchain_google_genai.chat_models: Retrying langchain_google_genai.chat_models._chat_with_retry.<locals>._chat_with_retry in 2.0 seconds as it raised NotFound: 404 models/gemini-2.0-flash-latest is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods..
-2025-03-29 17:57:04 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/brian-kelly
-2025-03-29 17:57:04 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/carly-schoepflin
-2025-03-29 17:57:07 [WARNING] langchain_google_genai.chat_models: Retrying langchain_google_genai.chat_models._chat_with_retry.<locals>._chat_with_retry in 2.0 seconds as it raised NotFound: 404 models/gemini-2.0-flash-latest is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods..
-2025-03-29 17:57:09 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/carly-schoepflin
-2025-03-29 17:57:10 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/charity-buchert
-2025-03-29 17:57:13 [WARNING] langchain_google_genai.chat_models: Retrying langchain_google_genai.chat_models._chat_with_retry.<locals>._chat_with_retry in 2.0 seconds as it raised NotFound: 404 models/gemini-2.0-flash-latest is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods..
-2025-03-29 17:57:15 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/charity-buchert
-2025-03-29 17:57:15 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/dailynn-hampton
-2025-03-29 18:00:37 [INFO] root: Logging configured.
-2025-03-29 18:00:37 [INFO] root: Application started.
-2025-03-29 18:00:37 [INFO] root: Loaded 99 URLs from data\uidaho_urls.json
-2025-03-29 18:00:37 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/savanah-nunes
-2025-03-29 18:00:45 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/savanah-nunes
-2025-03-29 18:00:45 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/steve-greene
-2025-03-29 18:01:19 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/steve-greene
-2025-03-29 18:01:20 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/amy-calabretta
-2025-03-29 18:01:37 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/amy-calabretta
-2025-03-29 18:01:37 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/angela-harley
-2025-03-29 18:01:41 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/angela-harley
-2025-03-29 18:01:42 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/ann-barrington
-2025-03-29 18:01:57 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/ann-barrington
-2025-03-29 18:01:58 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/ashley-baker
-2025-03-29 18:02:29 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/ashley-baker
-2025-03-29 18:02:29 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/brandi-chastain
-2025-03-29 18:02:35 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/brandi-chastain
-2025-03-29 18:02:36 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/brian-kelly
-2025-03-29 18:02:41 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/brian-kelly
-2025-03-29 18:02:41 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/carly-schoepflin
-2025-03-29 18:02:50 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/carly-schoepflin
-2025-03-29 18:02:51 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/charity-buchert
-2025-03-29 18:03:01 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/charity-buchert
-2025-03-29 18:03:01 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/dailynn-hampton
-2025-03-29 18:03:36 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/dailynn-hampton
-2025-03-29 18:03:37 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/david-pittsley
-2025-03-29 18:03:54 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/david-pittsley
-2025-03-29 18:03:55 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/dayna-willis
-2025-03-29 18:04:12 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/dayna-willis
-2025-03-29 18:04:13 [INFO] root: Processing URL: https://www.uidaho.edu/cals/family-and-consumer-sciences/our-people/trevor-white
-2025-03-29 18:04:16 [INFO] root: Completed processing https://www.uidaho.edu/cals/family-and-consumer-sciences/our-people/trevor-white
-2025-03-29 18:04:16 [INFO] root: Processing URL: https://www.uidaho.edu/cals/family-and-consumer-sciences/our-people/yang-lyu
-2025-03-29 18:04:21 [INFO] root: Completed processing https://www.uidaho.edu/cals/family-and-consumer-sciences/our-people/yang-lyu
-2025-03-29 18:04:22 [INFO] root: Processing URL: https://www.uidaho.edu/cals/family-and-consumer-sciences/our-people/yimin-chen
-2025-03-29 18:04:50 [INFO] root: Completed processing https://www.uidaho.edu/cals/family-and-consumer-sciences/our-people/yimin-chen
-2025-03-29 18:04:50 [INFO] root: Processing URL: https://www.uidaho.edu/cals/plant-sciences/our-people/jim-davis
-2025-03-29 18:05:14 [INFO] root: Completed processing https://www.uidaho.edu/cals/plant-sciences/our-people/jim-davis
-2025-03-29 18:05:14 [INFO] root: Processing URL: https://www.uidaho.edu/cals/plant-sciences/our-people/kamal-khadka
-2025-03-29 18:05:30 [INFO] root: Completed processing https://www.uidaho.edu/cals/plant-sciences/our-people/kamal-khadka
-2025-03-29 18:05:31 [INFO] root: Processing URL: https://www.uidaho.edu/cals/plant-sciences/our-people/shahla-mahdavi
-2025-03-29 18:05:36 [INFO] root: Completed processing https://www.uidaho.edu/cals/plant-sciences/our-people/shahla-mahdavi
-2025-03-29 18:05:37 [INFO] root: Processing URL: https://www.uidaho.edu/cals/plant-sciences/our-people/adam-kennedy
-2025-03-29 18:06:00 [INFO] root: Completed processing https://www.uidaho.edu/cals/plant-sciences/our-people/adam-kennedy
-2025-03-29 18:06:01 [INFO] root: Processing URL: https://www.uidaho.edu/cals/plant-sciences/our-people/albert-adjesiwor
-2025-03-29 18:06:22 [INFO] root: Completed processing https://www.uidaho.edu/cals/plant-sciences/our-people/albert-adjesiwor
-2025-03-29 18:06:23 [INFO] root: Processing URL: https://www.uidaho.edu/cals/plant-sciences/our-people/albert-kwarteng
-2025-03-29 18:06:28 [INFO] root: Completed processing https://www.uidaho.edu/cals/plant-sciences/our-people/albert-kwarteng
-2025-03-29 18:06:28 [INFO] root: Processing URL: https://www.uidaho.edu/cals/plant-sciences/our-people/allan-caplan
-2025-03-29 18:06:33 [INFO] root: Completed processing https://www.uidaho.edu/cals/plant-sciences/our-people/allan-caplan
-2025-03-29 18:06:34 [INFO] root: Processing URL: https://www.uidaho.edu/cals/plant-sciences/our-people/chandra-maki
-2025-03-29 18:06:48 [INFO] root: Completed processing https://www.uidaho.edu/cals/plant-sciences/our-people/chandra-maki
-2025-03-29 18:06:48 [INFO] root: Processing URL: https://www.uidaho.edu/cals/plant-sciences/our-people/david-white
-2025-03-29 18:06:53 [INFO] root: Completed processing https://www.uidaho.edu/cals/plant-sciences/our-people/david-white
-2025-03-29 18:06:54 [INFO] root: Processing URL: https://www.uidaho.edu/cals/plant-sciences/our-people/dileepa-jayawardena
-2025-03-29 18:06:58 [INFO] root: Completed processing https://www.uidaho.edu/cals/plant-sciences/our-people/dileepa-jayawardena
-2025-03-29 18:06:59 [INFO] root: Processing URL: https://www.uidaho.edu/cals/plant-sciences/our-people/fangming-xiao
-2025-03-29 18:07:17 [INFO] root: Completed processing https://www.uidaho.edu/cals/plant-sciences/our-people/fangming-xiao
-2025-03-29 18:07:17 [INFO] root: Processing URL: https://www.uidaho.edu/cals/plant-sciences/our-people/francisco-bautista
-2025-03-29 18:07:29 [INFO] root: Completed processing https://www.uidaho.edu/cals/plant-sciences/our-people/francisco-bautista
-2025-03-29 18:07:29 [INFO] root: Processing URL: https://www.uidaho.edu/cals/plant-sciences/our-people/gustavo-teixeira
-2025-03-29 18:07:42 [INFO] root: Completed processing https://www.uidaho.edu/cals/plant-sciences/our-people/gustavo-teixeira
-2025-03-29 18:07:42 [INFO] root: Processing URL: https://www.uidaho.edu/cals/plant-sciences/our-people/jared-spackman
-2025-03-29 18:08:13 [INFO] root: Completed processing https://www.uidaho.edu/cals/plant-sciences/our-people/jared-spackman
-2025-03-29 18:08:14 [INFO] root: Processing URL: https://www.uidaho.edu/cals/plant-sciences/our-people/jianli-chen
-2025-03-29 18:08:36 [INFO] root: Completed processing https://www.uidaho.edu/cals/plant-sciences/our-people/jianli-chen
-2025-03-29 18:08:37 [INFO] root: Processing URL: https://www.uidaho.edu/cals/plant-sciences/our-people/jonah-kaya
-2025-03-29 18:08:40 [INFO] root: Completed processing https://www.uidaho.edu/cals/plant-sciences/our-people/jonah-kaya
-2025-03-29 18:08:40 [INFO] root: Processing URL: https://www.uidaho.edu/cals/plant-sciences/our-people/joseph-kuhl
-2025-03-29 18:08:45 [INFO] root: Completed processing https://www.uidaho.edu/cals/plant-sciences/our-people/joseph-kuhl
-2025-03-29 18:08:46 [INFO] root: Processing URL: https://www.uidaho.edu/cals/plant-sciences/our-people/juliet-marshall
-2025-03-29 18:08:51 [INFO] root: Completed processing https://www.uidaho.edu/cals/plant-sciences/our-people/juliet-marshall
-2025-03-29 18:08:52 [INFO] root: Processing URL: https://www.uidaho.edu/cals/plant-sciences/our-people/kurtis-schroeder
-2025-03-29 18:09:14 [INFO] root: Completed processing https://www.uidaho.edu/cals/plant-sciences/our-people/kurtis-schroeder
-2025-03-29 18:09:14 [INFO] root: Processing URL: https://www.uidaho.edu/cals/plant-sciences/our-people/makayla-tedder
-2025-03-29 18:09:50 [INFO] root: Completed processing https://www.uidaho.edu/cals/plant-sciences/our-people/makayla-tedder
-2025-03-29 18:09:50 [INFO] root: Processing URL: https://www.uidaho.edu/cals/plant-sciences/our-people/melissa-bertram
-2025-03-29 18:10:08 [INFO] root: Completed processing https://www.uidaho.edu/cals/plant-sciences/our-people/melissa-bertram
-2025-03-29 18:10:09 [INFO] root: Processing URL: https://www.uidaho.edu/cals/plant-sciences/our-people/mike-thornton
-2025-03-29 18:10:25 [INFO] root: Completed processing https://www.uidaho.edu/cals/plant-sciences/our-people/mike-thornton
-2025-03-29 18:10:26 [INFO] root: Processing URL: https://www.uidaho.edu/class/music/faculty/theory-comp
-2025-03-29 18:11:02 [INFO] root: Completed processing https://www.uidaho.edu/class/music/faculty/theory-comp
-2025-03-29 18:11:02 [INFO] root: Processing URL: https://www.uidaho.edu/class/music/faculty/theory-comp/champagne-dylan
-2025-03-29 18:11:32 [INFO] root: Completed processing https://www.uidaho.edu/class/music/faculty/theory-comp/champagne-dylan
-2025-03-29 18:11:32 [INFO] root: Processing URL: https://www.uidaho.edu/class/music/faculty/theory-comp/max-wolpert
-2025-03-29 18:11:38 [INFO] root: Completed processing https://www.uidaho.edu/class/music/faculty/theory-comp/max-wolpert
-2025-03-29 18:11:38 [INFO] root: Processing URL: https://www.uidaho.edu/class/music/ensembles/student-ensembles
-2025-03-29 18:11:44 [INFO] root: Completed processing https://www.uidaho.edu/class/music/ensembles/student-ensembles
-2025-03-29 18:11:45 [INFO] root: Processing URL: https://www.uidaho.edu/class/music/ensembles/faculty-ensembles
-2025-03-29 18:11:53 [INFO] root: Completed processing https://www.uidaho.edu/class/music/ensembles/faculty-ensembles
-2025-03-29 18:11:53 [INFO] root: Processing URL: https://www.uidaho.edu/class/music/prep/piano/faculty/bordenkircher
-2025-03-29 18:12:00 [INFO] root: Completed processing https://www.uidaho.edu/class/music/prep/piano/faculty/bordenkircher
-2025-03-29 18:12:01 [INFO] root: Processing URL: https://www.uidaho.edu/class/music/prep/piano/faculty/welsh
-2025-03-29 18:12:08 [INFO] root: Completed processing https://www.uidaho.edu/class/music/prep/piano/faculty/welsh
-2025-03-29 18:12:09 [INFO] root: Processing URL: https://www.uidaho.edu/class/music/prep/strings/faculty/bianca
-2025-03-29 18:12:16 [INFO] root: Completed processing https://www.uidaho.edu/class/music/prep/strings/faculty/bianca
-2025-03-29 18:12:16 [INFO] root: Processing URL: https://www.uidaho.edu/class/music/prep/strings/faculty/cameron
-2025-03-29 18:12:23 [INFO] root: Completed processing https://www.uidaho.edu/class/music/prep/strings/faculty/cameron
-2025-03-29 18:12:24 [INFO] root: Processing URL: https://www.uidaho.edu/class/music/prep/strings/faculty/hillyer
-2025-03-29 18:12:31 [INFO] root: Completed processing https://www.uidaho.edu/class/music/prep/strings/faculty/hillyer
-2025-03-29 18:12:31 [INFO] root: Processing URL: https://www.uidaho.edu/class/music/prep/strings/faculty/kingsley
-2025-03-29 18:12:40 [INFO] root: Completed processing https://www.uidaho.edu/class/music/prep/strings/faculty/kingsley
-2025-03-29 18:12:40 [INFO] root: Processing URL: https://www.uidaho.edu/class/music/prep/strings/faculty/pililla
-2025-03-29 18:12:47 [INFO] root: Completed processing https://www.uidaho.edu/class/music/prep/strings/faculty/pililla
-2025-03-29 18:12:48 [INFO] root: Processing URL: https://www.uidaho.edu/sci/biology/people/faculty/snuismer
-2025-03-29 18:13:02 [INFO] root: Completed processing https://www.uidaho.edu/sci/biology/people/faculty/snuismer
-2025-03-29 18:13:02 [INFO] root: Processing URL: https://www.uidaho.edu/sci/biology/people/faculty/moswald
-2025-03-29 18:13:07 [INFO] root: Completed processing https://www.uidaho.edu/sci/biology/people/faculty/moswald
-2025-03-29 18:13:08 [INFO] root: Processing URL: https://www.uidaho.edu/sci/biology/people/faculty/ceparent
-2025-03-29 18:13:13 [INFO] root: Completed processing https://www.uidaho.edu/sci/biology/people/faculty/ceparent
-2025-03-29 18:13:13 [INFO] root: Processing URL: https://www.uidaho.edu/sci/biology/people/faculty/brobison
-2025-03-29 18:13:48 [INFO] root: Completed processing https://www.uidaho.edu/sci/biology/people/faculty/brobison
-2025-03-29 18:13:48 [INFO] root: Processing URL: https://www.uidaho.edu/sci/biology/people/faculty/prowley
-2025-03-29 18:14:12 [INFO] root: Completed processing https://www.uidaho.edu/sci/biology/people/faculty/prowley
-2025-03-29 18:14:13 [INFO] root: Processing URL: https://www.uidaho.edu/sci/biology/people/faculty/dstenkam
-2025-03-29 18:14:18 [INFO] root: Completed processing https://www.uidaho.edu/sci/biology/people/faculty/dstenkam
-2025-03-29 18:14:19 [INFO] root: Processing URL: https://www.uidaho.edu/sci/biology/people/faculty/jacks
-2025-03-29 18:14:25 [INFO] root: Completed processing https://www.uidaho.edu/sci/biology/people/faculty/jacks
-2025-03-29 18:14:25 [INFO] root: Processing URL: https://www.uidaho.edu/sci/biology/people/faculty/evatop
-2025-03-29 18:14:30 [INFO] root: Completed processing https://www.uidaho.edu/sci/biology/people/faculty/evatop
-2025-03-29 18:14:31 [INFO] root: Processing URL: https://www.uidaho.edu/sci/biology/people/faculty/hwichman
-2025-03-29 18:14:47 [INFO] root: Completed processing https://www.uidaho.edu/sci/biology/people/faculty/hwichman
-2025-03-29 18:14:47 [INFO] root: Processing URL: https://www.uidaho.edu/sci/biology/people/adjuncts
-2025-03-29 18:14:56 [INFO] root: Completed processing https://www.uidaho.edu/sci/biology/people/adjuncts
-2025-03-29 18:14:57 [INFO] root: Processing URL: https://www.uidaho.edu/sci/chem/people/faculty/andrasi
-2025-03-29 18:15:04 [INFO] root: Completed processing https://www.uidaho.edu/sci/chem/people/faculty/andrasi
-2025-03-29 18:15:05 [INFO] root: Processing URL: https://www.uidaho.edu/sci/chem/people/faculty/jeff-cross
-2025-03-29 18:15:11 [INFO] root: Completed processing https://www.uidaho.edu/sci/chem/people/faculty/jeff-cross
-2025-03-29 18:15:12 [INFO] root: Processing URL: https://www.uidaho.edu/sci/chem/people/faculty/rthompson
-2025-03-29 18:15:26 [INFO] root: Completed processing https://www.uidaho.edu/sci/chem/people/faculty/rthompson
-2025-03-29 18:15:26 [INFO] root: Processing URL: https://www.uidaho.edu/sci/chem/people/faculty/stoian
-2025-03-29 18:15:39 [INFO] root: Completed processing https://www.uidaho.edu/sci/chem/people/faculty/stoian
-2025-03-29 18:15:40 [INFO] root: Processing URL: https://www.uidaho.edu/sci/chem/people/faculty/ebrauns
-2025-03-29 18:15:45 [INFO] root: Completed processing https://www.uidaho.edu/sci/chem/people/faculty/ebrauns
-2025-03-29 18:15:46 [INFO] root: Processing URL: https://www.uidaho.edu/sci/chem/people/faculty/ifcheng
-2025-03-29 18:15:51 [INFO] root: Completed processing https://www.uidaho.edu/sci/chem/people/faculty/ifcheng
-2025-03-29 18:15:51 [INFO] root: Processing URL: https://www.uidaho.edu/sci/chem/people/faculty/hrdlicka
-2025-03-29 18:15:56 [INFO] root: Completed processing https://www.uidaho.edu/sci/chem/people/faculty/hrdlicka
-2025-03-29 18:15:57 [INFO] root: Processing URL: https://www.uidaho.edu/sci/chem/people/faculty/jshreeve
-2025-03-29 18:16:02 [INFO] root: Completed processing https://www.uidaho.edu/sci/chem/people/faculty/jshreeve
-2025-03-29 18:16:03 [INFO] root: Processing URL: https://www.uidaho.edu/sci/chem/people/faculty/rvw
-2025-03-29 18:16:08 [INFO] root: Completed processing https://www.uidaho.edu/sci/chem/people/faculty/rvw
-2025-03-29 18:16:08 [INFO] root: Processing URL: https://www.uidaho.edu/sci/chem/people/faculty/kwaynant
-2025-03-29 18:16:33 [INFO] root: Completed processing https://www.uidaho.edu/sci/chem/people/faculty/kwaynant
-2025-03-29 18:16:34 [INFO] root: Processing URL: https://www.uidaho.edu/sci/chem/people/faculty/williams
-2025-03-29 18:16:39 [INFO] root: Completed processing https://www.uidaho.edu/sci/chem/people/faculty/williams
-2025-03-29 18:16:40 [INFO] root: Processing URL: https://www.uidaho.edu/sci/ess/people/faculty-and-staff
-2025-03-29 18:17:00 [INFO] root: Completed processing https://www.uidaho.edu/sci/ess/people/faculty-and-staff
-2025-03-29 18:17:00 [INFO] root: Processing URL: https://www.uidaho.edu/sci/ess/people/faculty-and-staff/bob-smith
-2025-03-29 18:17:05 [INFO] root: Completed processing https://www.uidaho.edu/sci/ess/people/faculty-and-staff/bob-smith
-2025-03-29 18:17:06 [INFO] root: Processing URL: https://www.uidaho.edu/sci/ess/people/faculty-and-staff/brad-ritts
-2025-03-29 18:17:47 [INFO] root: Completed processing https://www.uidaho.edu/sci/ess/people/faculty-and-staff/brad-ritts
-2025-03-29 18:17:47 [INFO] root: Processing URL: https://www.uidaho.edu/sci/ess/people/faculty-and-staff/erika-rader
-2025-03-29 18:18:11 [INFO] root: Completed processing https://www.uidaho.edu/sci/ess/people/faculty-and-staff/erika-rader
-2025-03-29 18:18:12 [INFO] root: Processing URL: https://www.uidaho.edu/sci/ess/people/faculty-and-staff/grant-harley
-2025-03-29 18:18:29 [INFO] root: Completed processing https://www.uidaho.edu/sci/ess/people/faculty-and-staff/grant-harley
-2025-03-29 18:18:29 [INFO] root: Processing URL: https://www.uidaho.edu/sci/ess/people/faculty-and-staff/jessica-stanley
-2025-03-29 18:18:58 [INFO] root: Completed processing https://www.uidaho.edu/sci/ess/people/faculty-and-staff/jessica-stanley
-2025-03-29 18:18:58 [INFO] root: Processing URL: https://www.uidaho.edu/sci/ess/people/faculty-and-staff/meng-zhao
-2025-03-29 18:19:04 [INFO] root: Completed processing https://www.uidaho.edu/sci/ess/people/faculty-and-staff/meng-zhao
-2025-03-29 18:19:05 [INFO] root: Processing URL: https://www.uidaho.edu/sci/ess/people/faculty-and-staff/rlove
-2025-03-29 18:19:10 [INFO] root: Completed processing https://www.uidaho.edu/sci/ess/people/faculty-and-staff/rlove
-2025-03-29 18:19:10 [INFO] root: Processing URL: https://www.uidaho.edu/sci/ess/people/faculty-and-staff/dezzani
-2025-03-29 18:19:34 [INFO] root: Completed processing https://www.uidaho.edu/sci/ess/people/faculty-and-staff/dezzani
-2025-03-29 18:19:34 [INFO] root: Processing URL: https://www.uidaho.edu/sci/ess/people/faculty-and-staff/ecassel
-2025-03-29 18:19:39 [INFO] root: Completed processing https://www.uidaho.edu/sci/ess/people/faculty-and-staff/ecassel
-2025-03-29 18:19:40 [INFO] root: Processing URL: https://www.uidaho.edu/sci/ess/people/faculty-and-staff/jfairley
-2025-03-29 18:19:45 [INFO] root: Completed processing https://www.uidaho.edu/sci/ess/people/faculty-and-staff/jfairley
-2025-03-29 18:19:45 [INFO] root: Processing URL: https://www.uidaho.edu/sci/ess/people/faculty-and-staff/jhicke
-2025-03-29 18:19:52 [INFO] root: Completed processing https://www.uidaho.edu/sci/ess/people/faculty-and-staff/jhicke
-2025-03-29 18:19:53 [INFO] root: Processing URL: https://www.uidaho.edu/sci/ess/people/faculty-and-staff/khumes
-2025-03-29 18:20:13 [INFO] root: Completed processing https://www.uidaho.edu/sci/ess/people/faculty-and-staff/khumes
-2025-03-29 18:20:14 [INFO] root: Processing URL: https://www.uidaho.edu/sci/physics/people/faculty/gbarnes
-2025-03-29 18:20:19 [INFO] root: Completed processing https://www.uidaho.edu/sci/physics/people/faculty/gbarnes
-2025-03-29 18:20:20 [INFO] root: Processing URL: https://www.uidaho.edu/sci/physics/people/faculty/john-hiller
-2025-03-29 18:20:52 [INFO] root: Completed processing https://www.uidaho.edu/sci/physics/people/faculty/john-hiller
-2025-03-29 18:20:53 [INFO] root: Processing URL: https://www.uidaho.edu/sci/physics/people/faculty/sophia-chabysheva
-2025-03-29 18:20:57 [INFO] root: Completed processing https://www.uidaho.edu/sci/physics/people/faculty/sophia-chabysheva
-2025-03-29 18:20:58 [INFO] root: Processing URL: https://www.uidaho.edu/sci/physics/people/faculty/zachariah
-2025-03-29 18:21:03 [INFO] root: Completed processing https://www.uidaho.edu/sci/physics/people/faculty/zachariah
-2025-03-29 18:21:03 [INFO] root: Processing URL: https://www.uidaho.edu/sci/physics/people/faculty/jwbarnes
-2025-03-29 18:21:31 [INFO] root: Completed processing https://www.uidaho.edu/sci/physics/people/faculty/jwbarnes
-2025-03-29 18:21:32 [INFO] root: Processing URL: https://www.uidaho.edu/sci/physics/people/faculty/lbergman
-2025-03-29 18:21:37 [INFO] root: Completed processing https://www.uidaho.edu/sci/physics/people/faculty/lbergman
-2025-03-29 18:21:37 [INFO] root: Processing URL: https://www.uidaho.edu/sci/physics/people/faculty/berven
-2025-03-29 18:21:42 [INFO] root: Completed processing https://www.uidaho.edu/sci/physics/people/faculty/berven
-2025-03-29 18:21:43 [INFO] root: Processing URL: https://www.uidaho.edu/sci/physics/people/faculty/mhedman
-2025-03-29 18:22:14 [INFO] root: Completed processing https://www.uidaho.edu/sci/physics/people/faculty/mhedman
-2025-03-29 18:22:14 [INFO] root: Processing URL: https://www.uidaho.edu/sci/physics/people/faculty/machleid
-2025-03-29 18:22:18 [INFO] root: Completed processing https://www.uidaho.edu/sci/physics/people/faculty/machleid
-2025-03-29 18:22:18 [INFO] root: Processing URL: https://www.uidaho.edu/sci/physics/people/faculty/youqiang
-2025-03-29 18:22:24 [INFO] root: Completed processing https://www.uidaho.edu/sci/physics/people/faculty/youqiang
-2025-03-29 18:22:25 [INFO] root: Processing URL: https://www.uidaho.edu/sci/physics/people/faculty/fsammarr
-2025-03-29 18:22:29 [INFO] root: Completed processing https://www.uidaho.edu/sci/physics/people/faculty/fsammarr
-2025-03-29 18:22:30 [INFO] root: Processing URL: https://www.uidaho.edu/sci/physics/people/faculty/andreasv
-2025-03-29 18:22:35 [INFO] root: Completed processing https://www.uidaho.edu/sci/physics/people/faculty/andreasv
-2025-03-29 18:22:35 [INFO] root: Processing URL: https://www.uidaho.edu/sci/physics/people/faculty/ytreberg
-2025-03-29 18:22:40 [INFO] root: Completed processing https://www.uidaho.edu/sci/physics/people/faculty/ytreberg
-2025-03-29 18:22:41 [INFO] root: Processing URL: https://www.uidaho.edu/cals/services/grant-and-project-development/our-people/tenley-burke
-2025-03-29 18:22:44 [INFO] root: Completed processing https://www.uidaho.edu/cals/services/grant-and-project-development/our-people/tenley-burke
-2025-03-29 18:22:44 [INFO] root: Processing URL: https://www.uidaho.edu/cals/services/grant-and-project-development/our-people/debbie-gray
-2025-03-29 18:22:52 [INFO] root: Completed processing https://www.uidaho.edu/cals/services/grant-and-project-development/our-people/debbie-gray
-2025-03-29 18:22:54 [INFO] root: Saved 90 profiles to output\extracted_profiles.xlsx
-2025-03-29 18:22:54 [INFO] root: 
+2025-03-29 20:37:15 [INFO] root: Logging configured.
+2025-03-29 20:37:15 [INFO] root: Application started.
+2025-03-29 20:37:15 [INFO] root: Loaded 14 URLs from data/uidaho_urls.json
+2025-03-29 20:37:15 [INFO] root: Processing URL: https://www.uidaho.edu/cals/services/grant-and-project-development/our-people/tenley-burke
+2025-03-29 20:37:18 [INFO] root: Completed processing https://www.uidaho.edu/cals/services/grant-and-project-development/our-people/tenley-burke
+2025-03-29 20:37:19 [INFO] root: Processing URL: https://www.uidaho.edu/cals/services/grant-and-project-development/our-people/debbie-gray
+2025-03-29 20:37:23 [INFO] root: Completed processing https://www.uidaho.edu/cals/services/grant-and-project-development/our-people/debbie-gray
+2025-03-29 20:37:23 [INFO] root: Processing URL: https://www.uidaho.edu/cals/services/grant-and-project-development/our-people/soren-newman
+2025-03-29 20:37:27 [INFO] root: Completed processing https://www.uidaho.edu/cals/services/grant-and-project-development/our-people/soren-newman
+2025-03-29 20:37:27 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/harpreet-kaur
+2025-03-29 20:37:31 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/harpreet-kaur
+2025-03-29 20:37:32 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/madison-mcguire
+2025-03-29 20:37:36 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/madison-mcguire
+2025-03-29 20:37:36 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/savanah-nunes
+2025-03-29 20:37:40 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/savanah-nunes
+2025-03-29 20:37:41 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/steve-greene
+2025-03-29 20:37:45 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/steve-greene
+2025-03-29 20:37:45 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/amy-calabretta
+2025-03-29 20:37:49 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/amy-calabretta
+2025-03-29 20:37:49 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/angela-harley
+2025-03-29 20:37:53 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/angela-harley
+2025-03-29 20:37:53 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/ann-barrington
+2025-03-29 20:37:57 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/ann-barrington
+2025-03-29 20:37:58 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/ashley-baker
+2025-03-29 20:38:01 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/ashley-baker
+2025-03-29 20:38:02 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/brandi-chastain
+2025-03-29 20:38:06 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/brandi-chastain
+2025-03-29 20:38:06 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/brian-kelly
+2025-03-29 20:38:10 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/brian-kelly
+2025-03-29 20:38:10 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/carly-schoepflin
+2025-03-29 20:38:14 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/carly-schoepflin
+2025-03-29 20:38:14 [INFO] root: 
 Processing Metrics:
-2025-03-29 18:22:54 [INFO] root: Total URLs processed: 99
-2025-03-29 18:22:54 [INFO] root: Successful extractions: 90
-2025-03-29 18:22:54 [INFO] root: Failed extractions: 9
-2025-03-29 18:22:54 [INFO] root: Success rate: 90.91%
-2025-03-29 18:22:54 [INFO] root: Total cost: $0.0000
-2025-03-29 18:22:54 [INFO] root: Average processing time: 14272.49 ms
-2025-03-29 18:22:54 [INFO] root: Profile extraction process completed successfully
-2025-03-29 18:41:15 [INFO] root: Logging configured.
-2025-03-29 18:41:15 [INFO] root: Application started.
-2025-03-29 18:41:15 [INFO] root: Loaded 14 URLs from data\uidaho_urls.json
-2025-03-29 18:41:15 [INFO] root: Processing URL: https://www.uidaho.edu/cals/services/grant-and-project-development/our-people/tenley-burke
-2025-03-29 18:41:19 [INFO] root: Completed processing https://www.uidaho.edu/cals/services/grant-and-project-development/our-people/tenley-burke
-2025-03-29 18:41:19 [INFO] root: Processing URL: https://www.uidaho.edu/cals/services/grant-and-project-development/our-people/debbie-gray
-2025-03-29 18:41:27 [INFO] root: Completed processing https://www.uidaho.edu/cals/services/grant-and-project-development/our-people/debbie-gray
-2025-03-29 18:41:27 [INFO] root: Processing URL: https://www.uidaho.edu/cals/services/grant-and-project-development/our-people/soren-newman
-2025-03-29 18:41:32 [INFO] root: Completed processing https://www.uidaho.edu/cals/services/grant-and-project-development/our-people/soren-newman
-2025-03-29 18:41:33 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/harpreet-kaur
-2025-03-29 18:41:41 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/harpreet-kaur
-2025-03-29 18:41:42 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/madison-mcguire
-2025-03-29 18:42:18 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/madison-mcguire
-2025-03-29 18:42:18 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/savanah-nunes
-2025-03-29 18:42:44 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/savanah-nunes
-2025-03-29 18:42:44 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/steve-greene
-2025-03-29 18:43:00 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/steve-greene
-2025-03-29 18:43:01 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/amy-calabretta
-2025-03-29 18:43:17 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/amy-calabretta
-2025-03-29 18:43:18 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/angela-harley
-2025-03-29 18:43:23 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/angela-harley
-2025-03-29 18:43:23 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/ann-barrington
-2025-03-29 18:43:58 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/ann-barrington
-2025-03-29 18:43:58 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/ashley-baker
-2025-03-29 18:44:34 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/ashley-baker
-2025-03-29 18:44:35 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/brandi-chastain
-2025-03-29 18:44:50 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/brandi-chastain
-2025-03-29 18:44:51 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/brian-kelly
-2025-03-29 18:44:56 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/brian-kelly
-2025-03-29 18:44:56 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/carly-schoepflin
-2025-03-29 18:45:12 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/carly-schoepflin
-2025-03-29 18:45:13 [INFO] root: Saved 10 profiles to output\extracted_profiles.xlsx
-2025-03-29 18:45:13 [INFO] root: 
+2025-03-29 20:38:14 [INFO] root: Total URLs processed: 14
+2025-03-29 20:38:14 [INFO] root: Successful extractions: 0
+2025-03-29 20:38:14 [INFO] root: Failed extractions: 14
+2025-03-29 20:38:14 [INFO] root: Success rate: 0.00%
+2025-03-29 20:38:14 [INFO] root: Total cost: $0.0000
+2025-03-29 20:38:14 [INFO] root: Profile extraction process completed
+2025-03-29 20:38:37 [INFO] root: Logging configured.
+2025-03-29 20:38:37 [INFO] root: Application started.
+2025-03-29 20:38:37 [INFO] root: Loaded 14 URLs from data/uidaho_urls.json
+2025-03-29 20:38:37 [INFO] root: Processing URL: https://www.uidaho.edu/cals/services/grant-and-project-development/our-people/tenley-burke
+2025-03-29 20:38:40 [INFO] root: Completed processing https://www.uidaho.edu/cals/services/grant-and-project-development/our-people/tenley-burke
+2025-03-29 20:38:40 [INFO] root: Processing URL: https://www.uidaho.edu/cals/services/grant-and-project-development/our-people/debbie-gray
+2025-03-29 20:38:46 [INFO] root: Completed processing https://www.uidaho.edu/cals/services/grant-and-project-development/our-people/debbie-gray
+2025-03-29 20:38:47 [INFO] root: Processing URL: https://www.uidaho.edu/cals/services/grant-and-project-development/our-people/soren-newman
+2025-03-29 20:38:51 [INFO] root: Completed processing https://www.uidaho.edu/cals/services/grant-and-project-development/our-people/soren-newman
+2025-03-29 20:38:51 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/harpreet-kaur
+2025-03-29 20:38:57 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/harpreet-kaur
+2025-03-29 20:38:57 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/madison-mcguire
+2025-03-29 20:39:02 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/madison-mcguire
+2025-03-29 20:39:02 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/savanah-nunes
+2025-03-29 20:39:07 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/savanah-nunes
+2025-03-29 20:39:08 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/steve-greene
+2025-03-29 20:39:13 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/steve-greene
+2025-03-29 20:39:14 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/amy-calabretta
+2025-03-29 20:39:18 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/amy-calabretta
+2025-03-29 20:39:19 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/angela-harley
+2025-03-29 20:39:24 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/angela-harley
+2025-03-29 20:39:25 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/ann-barrington
+2025-03-29 20:39:30 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/ann-barrington
+2025-03-29 20:39:31 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/ashley-baker
+2025-03-29 20:39:36 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/ashley-baker
+2025-03-29 20:39:36 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/brandi-chastain
+2025-03-29 20:39:42 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/brandi-chastain
+2025-03-29 20:39:42 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/brian-kelly
+2025-03-29 20:39:47 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/brian-kelly
+2025-03-29 20:39:48 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/carly-schoepflin
+2025-03-29 20:39:53 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/carly-schoepflin
+2025-03-29 20:39:53 [INFO] root: Saved 13 profiles to output/extracted_profiles.xlsx
+2025-03-29 20:39:53 [INFO] root: 
 Processing Metrics:
-2025-03-29 18:45:13 [INFO] root: Total URLs processed: 14
-2025-03-29 18:45:13 [INFO] root: Successful extractions: 10
-2025-03-29 18:45:13 [INFO] root: Failed extractions: 4
-2025-03-29 18:45:13 [INFO] root: Success rate: 71.43%
-2025-03-29 18:45:13 [INFO] root: Total cost: $0.0000
-2025-03-29 18:45:13 [INFO] root: Average processing time: 23024.08 ms
-2025-03-29 18:45:13 [INFO] root: Profile extraction process completed successfully
-2025-03-29 18:57:46 [INFO] root: Logging configured.
-2025-03-29 18:57:46 [INFO] root: Application started.
-2025-03-29 18:57:46 [INFO] root: Loaded 14 URLs from data\uidaho_urls.json
-2025-03-29 18:57:46 [INFO] root: Processing URL: https://www.uidaho.edu/cals/services/grant-and-project-development/our-people/tenley-burke
-2025-03-29 18:57:49 [INFO] root: Completed processing https://www.uidaho.edu/cals/services/grant-and-project-development/our-people/tenley-burke
-2025-03-29 18:57:49 [INFO] root: Processing URL: https://www.uidaho.edu/cals/services/grant-and-project-development/our-people/debbie-gray
-2025-03-29 18:57:57 [INFO] root: Completed processing https://www.uidaho.edu/cals/services/grant-and-project-development/our-people/debbie-gray
-2025-03-29 18:57:58 [INFO] root: Processing URL: https://www.uidaho.edu/cals/services/grant-and-project-development/our-people/soren-newman
-2025-03-29 18:58:02 [INFO] root: Completed processing https://www.uidaho.edu/cals/services/grant-and-project-development/our-people/soren-newman
-2025-03-29 18:58:03 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/harpreet-kaur
-2025-03-29 18:58:34 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/harpreet-kaur
-2025-03-29 18:58:34 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/madison-mcguire
-2025-03-29 18:58:49 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/madison-mcguire
-2025-03-29 18:58:50 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/savanah-nunes
-2025-03-29 18:59:15 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/savanah-nunes
-2025-03-29 18:59:15 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/steve-greene
-2025-03-29 18:59:39 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/steve-greene
-2025-03-29 18:59:40 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/amy-calabretta
-2025-03-29 18:59:45 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/amy-calabretta
-2025-03-29 18:59:46 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/angela-harley
-2025-03-29 18:59:50 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/angela-harley
-2025-03-29 18:59:51 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/ann-barrington
-2025-03-29 18:59:55 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/ann-barrington
-2025-03-29 18:59:56 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/ashley-baker
-2025-03-29 19:00:33 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/ashley-baker
-2025-03-29 19:00:33 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/brandi-chastain
-2025-03-29 19:00:39 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/brandi-chastain
-2025-03-29 19:00:39 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/brian-kelly
-2025-03-29 19:00:45 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/brian-kelly
-2025-03-29 19:00:45 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/carly-schoepflin
-2025-03-29 19:01:33 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/carly-schoepflin
-2025-03-29 19:01:34 [INFO] root: Saved 11 profiles to output\extracted_profiles.xlsx
-2025-03-29 19:01:34 [INFO] root: 
+2025-03-29 20:39:53 [INFO] root: Total URLs processed: 14
+2025-03-29 20:39:53 [INFO] root: Successful extractions: 0
+2025-03-29 20:39:53 [INFO] root: Failed extractions: 14
+2025-03-29 20:39:53 [INFO] root: Success rate: 0.00%
+2025-03-29 20:39:53 [INFO] root: Total cost: $0.0000
+2025-03-29 20:39:53 [INFO] root: Profile extraction process completed
+2025-03-29 20:40:46 [INFO] root: Logging configured.
+2025-03-29 20:40:46 [INFO] root: Application started.
+2025-03-29 20:40:46 [INFO] root: Loaded 14 URLs from data/uidaho_urls.json
+2025-03-29 20:40:46 [INFO] root: Processing URL: https://www.uidaho.edu/cals/services/grant-and-project-development/our-people/tenley-burke
+2025-03-29 20:40:50 [INFO] root: Completed processing https://www.uidaho.edu/cals/services/grant-and-project-development/our-people/tenley-burke
+2025-03-29 20:40:50 [INFO] root: Processing URL: https://www.uidaho.edu/cals/services/grant-and-project-development/our-people/debbie-gray
+2025-03-29 20:40:55 [INFO] root: Completed processing https://www.uidaho.edu/cals/services/grant-and-project-development/our-people/debbie-gray
+2025-03-29 20:40:56 [INFO] root: Processing URL: https://www.uidaho.edu/cals/services/grant-and-project-development/our-people/soren-newman
+2025-03-29 20:41:00 [INFO] root: Completed processing https://www.uidaho.edu/cals/services/grant-and-project-development/our-people/soren-newman
+2025-03-29 20:41:01 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/harpreet-kaur
+2025-03-29 20:41:20 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/harpreet-kaur
+2025-03-29 20:41:20 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/madison-mcguire
+2025-03-29 20:41:26 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/madison-mcguire
+2025-03-29 20:41:26 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/savanah-nunes
+2025-03-29 20:41:32 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/savanah-nunes
+2025-03-29 20:41:32 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/steve-greene
+2025-03-29 20:41:37 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/steve-greene
+2025-03-29 20:41:37 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/amy-calabretta
+2025-03-29 20:41:43 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/amy-calabretta
+2025-03-29 20:41:43 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/angela-harley
+2025-03-29 20:41:49 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/angela-harley
+2025-03-29 20:41:49 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/ann-barrington
+2025-03-29 20:41:54 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/ann-barrington
+2025-03-29 20:41:54 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/ashley-baker
+2025-03-29 20:42:00 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/ashley-baker
+2025-03-29 20:42:00 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/brandi-chastain
+2025-03-29 20:42:05 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/brandi-chastain
+2025-03-29 20:42:06 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/brian-kelly
+2025-03-29 20:42:10 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/brian-kelly
+2025-03-29 20:42:11 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/carly-schoepflin
+2025-03-29 20:42:16 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/carly-schoepflin
+2025-03-29 20:42:17 [INFO] root: Saved 13 profiles to output/extracted_profiles.xlsx
+2025-03-29 20:42:17 [INFO] root: 
 Processing Metrics:
-2025-03-29 19:01:34 [INFO] root: Total URLs processed: 14
-2025-03-29 19:01:34 [INFO] root: Successful extractions: 11
-2025-03-29 19:01:34 [INFO] root: Failed extractions: 3
-2025-03-29 19:01:34 [INFO] root: Success rate: 78.57%
-2025-03-29 19:01:34 [INFO] root: Total cost: $0.0000
-2025-03-29 19:01:34 [INFO] root: Average processing time: 20083.75 ms
-2025-03-29 19:01:34 [INFO] root: Profile extraction process completed successfully
-2025-03-29 19:01:49 [INFO] root: Logging configured.
-2025-03-29 19:01:49 [INFO] root: Application started.
-2025-03-29 19:01:49 [INFO] root: Loaded 14 URLs from data\uidaho_urls.json
-2025-03-29 19:01:49 [INFO] root: Processing URL: https://www.uidaho.edu/cals/services/grant-and-project-development/our-people/tenley-burke
-2025-03-29 19:01:51 [INFO] root: Completed processing https://www.uidaho.edu/cals/services/grant-and-project-development/our-people/tenley-burke
-2025-03-29 19:01:52 [INFO] root: Processing URL: https://www.uidaho.edu/cals/services/grant-and-project-development/our-people/debbie-gray
-2025-03-29 19:03:26 [INFO] root: Logging configured.
-2025-03-29 19:03:26 [INFO] root: Application started.
-2025-03-29 19:03:26 [INFO] root: Loaded 14 URLs from data\uidaho_urls.json
-2025-03-29 19:03:26 [INFO] root: Processing URL: https://www.uidaho.edu/cals/services/grant-and-project-development/our-people/tenley-burke
-2025-03-29 19:03:29 [INFO] root: Completed processing https://www.uidaho.edu/cals/services/grant-and-project-development/our-people/tenley-burke
-2025-03-29 19:03:30 [INFO] root: Processing URL: https://www.uidaho.edu/cals/services/grant-and-project-development/our-people/debbie-gray
-2025-03-29 19:03:55 [INFO] root: Completed processing https://www.uidaho.edu/cals/services/grant-and-project-development/our-people/debbie-gray
-2025-03-29 19:03:55 [INFO] root: Processing URL: https://www.uidaho.edu/cals/services/grant-and-project-development/our-people/soren-newman
-2025-03-29 19:04:00 [INFO] root: Completed processing https://www.uidaho.edu/cals/services/grant-and-project-development/our-people/soren-newman
-2025-03-29 19:04:00 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/harpreet-kaur
-2025-03-29 19:07:29 [INFO] root: Logging configured.
-2025-03-29 19:07:29 [INFO] root: Application started.
-2025-03-29 19:07:29 [INFO] root: Loaded 14 URLs from data\uidaho_urls.json
-2025-03-29 19:07:29 [INFO] root: Processing URL: https://www.uidaho.edu/cals/services/grant-and-project-development/our-people/tenley-burke
-2025-03-29 19:07:32 [INFO] root: Completed processing https://www.uidaho.edu/cals/services/grant-and-project-development/our-people/tenley-burke
-2025-03-29 19:07:32 [INFO] root: Processing URL: https://www.uidaho.edu/cals/services/grant-and-project-development/our-people/debbie-gray
-2025-03-29 19:07:51 [INFO] root: Completed processing https://www.uidaho.edu/cals/services/grant-and-project-development/our-people/debbie-gray
-2025-03-29 19:07:51 [INFO] root: Processing URL: https://www.uidaho.edu/cals/services/grant-and-project-development/our-people/soren-newman
-2025-03-29 19:07:56 [INFO] root: Completed processing https://www.uidaho.edu/cals/services/grant-and-project-development/our-people/soren-newman
-2025-03-29 19:07:56 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/harpreet-kaur
-2025-03-29 19:08:07 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/harpreet-kaur
-2025-03-29 19:08:07 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/madison-mcguire
-2025-03-29 19:08:32 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/madison-mcguire
-2025-03-29 19:08:33 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/savanah-nunes
-2025-03-29 19:08:49 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/savanah-nunes
-2025-03-29 19:08:50 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/steve-greene
-2025-03-29 19:09:20 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/steve-greene
-2025-03-29 19:09:21 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/amy-calabretta
-2025-03-29 19:09:26 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/amy-calabretta
-2025-03-29 19:09:26 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/angela-harley
-2025-03-29 19:09:31 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/angela-harley
-2025-03-29 19:09:32 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/ann-barrington
-2025-03-29 19:09:37 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/ann-barrington
-2025-03-29 19:09:37 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/ashley-baker
-2025-03-29 19:09:52 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/ashley-baker
-2025-03-29 19:09:53 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/brandi-chastain
-2025-03-29 19:09:58 [WARNING] root: Keyboard interrupt detected. Stopping gracefully...
-2025-03-29 19:09:58 [INFO] root: Processed 11 out of 14 URLs before interruption
-2025-03-29 19:09:58 [INFO] root: Saving partial results before exit...
-2025-03-29 19:09:59 [INFO] root: Saved 10 profiles to output\extracted_profiles.xlsx
-2025-03-29 19:09:59 [INFO] root: 
+2025-03-29 20:42:17 [INFO] root: Total URLs processed: 14
+2025-03-29 20:42:17 [INFO] root: Successful extractions: 0
+2025-03-29 20:42:17 [INFO] root: Failed extractions: 14
+2025-03-29 20:42:17 [INFO] root: Success rate: 0.00%
+2025-03-29 20:42:17 [INFO] root: Total cost: $0.0000
+2025-03-29 20:42:17 [INFO] root: Profile extraction process completed
+2025-03-29 20:43:02 [INFO] root: Logging configured.
+2025-03-29 20:43:02 [INFO] root: Application started.
+2025-03-29 20:43:02 [INFO] root: Loaded 14 URLs from data/uidaho_urls.json
+2025-03-29 20:43:02 [INFO] root: Processing URL: https://www.uidaho.edu/cals/services/grant-and-project-development/our-people/tenley-burke
+2025-03-29 20:43:05 [INFO] root: Completed processing https://www.uidaho.edu/cals/services/grant-and-project-development/our-people/tenley-burke
+2025-03-29 20:43:05 [INFO] root: Processing URL: https://www.uidaho.edu/cals/services/grant-and-project-development/our-people/debbie-gray
+2025-03-29 20:43:11 [INFO] root: Completed processing https://www.uidaho.edu/cals/services/grant-and-project-development/our-people/debbie-gray
+2025-03-29 20:43:11 [INFO] root: Processing URL: https://www.uidaho.edu/cals/services/grant-and-project-development/our-people/soren-newman
+2025-03-29 20:43:16 [INFO] root: Completed processing https://www.uidaho.edu/cals/services/grant-and-project-development/our-people/soren-newman
+2025-03-29 20:43:16 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/harpreet-kaur
+2025-03-29 20:43:22 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/harpreet-kaur
+2025-03-29 20:43:22 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/madison-mcguire
+2025-03-29 20:43:28 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/madison-mcguire
+2025-03-29 20:43:28 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/savanah-nunes
+2025-03-29 20:43:34 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/savanah-nunes
+2025-03-29 20:43:34 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/steve-greene
+2025-03-29 20:43:39 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/steve-greene
+2025-03-29 20:43:40 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/amy-calabretta
+2025-03-29 20:43:45 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/amy-calabretta
+2025-03-29 20:43:45 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/angela-harley
+2025-03-29 20:43:51 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/angela-harley
+2025-03-29 20:43:51 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/ann-barrington
+2025-03-29 20:43:56 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/ann-barrington
+2025-03-29 20:43:56 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/ashley-baker
+2025-03-29 20:44:01 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/ashley-baker
+2025-03-29 20:44:02 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/brandi-chastain
+2025-03-29 20:44:06 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/brandi-chastain
+2025-03-29 20:44:07 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/brian-kelly
+2025-03-29 20:44:12 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/brian-kelly
+2025-03-29 20:44:12 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/carly-schoepflin
+2025-03-29 20:44:17 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/carly-schoepflin
+2025-03-29 20:44:18 [INFO] root: Saved 13 profiles to output/extracted_profiles.xlsx
+2025-03-29 20:44:18 [INFO] root: 
 Processing Metrics:
-2025-03-29 19:09:59 [INFO] root: Total URLs processed: 11
-2025-03-29 19:09:59 [INFO] root: Successful extractions: 10
-2025-03-29 19:09:59 [INFO] root: Failed extractions: 1
-2025-03-29 19:09:59 [INFO] root: Success rate: 90.91%
-2025-03-29 19:09:59 [INFO] root: Total cost: $0.0000
-2025-03-29 19:09:59 [INFO] root: Average processing time: 13860.53 ms
-2025-03-29 19:09:59 [INFO] root: Profile extraction process completed
-2025-03-29 19:09:59 [INFO] root: Note: Only 11/14 URLs were processed
+2025-03-29 20:44:18 [INFO] root: Total URLs processed: 14
+2025-03-29 20:44:18 [INFO] root: Successful extractions: 0
+2025-03-29 20:44:18 [INFO] root: Failed extractions: 14
+2025-03-29 20:44:18 [INFO] root: Success rate: 0.00%
+2025-03-29 20:44:18 [INFO] root: Total cost: $0.0000
+2025-03-29 20:44:18 [INFO] root: Profile extraction process completed
+2025-03-29 20:44:46 [INFO] root: Logging configured.
+2025-03-29 20:44:46 [INFO] root: Application started.
+2025-03-29 20:44:46 [INFO] root: Loaded 14 URLs from data/uidaho_urls.json
+2025-03-29 20:44:46 [INFO] root: Processing URL: https://www.uidaho.edu/cals/services/grant-and-project-development/our-people/tenley-burke
+2025-03-29 20:44:50 [INFO] root: Completed processing https://www.uidaho.edu/cals/services/grant-and-project-development/our-people/tenley-burke
+2025-03-29 20:44:50 [INFO] root: Processing URL: https://www.uidaho.edu/cals/services/grant-and-project-development/our-people/debbie-gray
+2025-03-29 20:44:55 [INFO] root: Completed processing https://www.uidaho.edu/cals/services/grant-and-project-development/our-people/debbie-gray
+2025-03-29 20:44:56 [INFO] root: Processing URL: https://www.uidaho.edu/cals/services/grant-and-project-development/our-people/soren-newman
+2025-03-29 20:45:00 [INFO] root: Completed processing https://www.uidaho.edu/cals/services/grant-and-project-development/our-people/soren-newman
+2025-03-29 20:45:01 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/harpreet-kaur
+2025-03-29 20:45:07 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/harpreet-kaur
+2025-03-29 20:45:07 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/madison-mcguire
+2025-03-29 20:45:13 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/madison-mcguire
+2025-03-29 20:45:13 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/savanah-nunes
+2025-03-29 20:45:16 [WARNING] root: Keyboard interrupt detected. Stopping gracefully...
+2025-03-29 20:45:16 [INFO] root: Processed 5 out of 14 URLs before interruption
+2025-03-29 20:45:16 [INFO] root: Saving partial results before exit...
+2025-03-29 20:45:16 [INFO] root: Saved 4 profiles to output/extracted_profiles.xlsx
+2025-03-29 20:45:16 [INFO] root: 
+Processing Metrics:
+2025-03-29 20:45:16 [INFO] root: Total URLs processed: 5
+2025-03-29 20:45:16 [INFO] root: Successful extractions: 4
+2025-03-29 20:45:16 [INFO] root: Failed extractions: 1
+2025-03-29 20:45:16 [INFO] root: Success rate: 80.00%
+2025-03-29 20:45:16 [INFO] root: Total cost: $0.0000
+2025-03-29 20:45:16 [INFO] root: Profile extraction process completed
+2025-03-29 20:45:16 [INFO] root: Note: Only 5/14 URLs were processed
+2025-03-29 20:49:22 [INFO] root: Logging configured.
+2025-03-29 20:49:22 [INFO] root: Application started.
+2025-03-29 20:49:22 [INFO] root: Loaded 8 URLs from data/uidaho_urls.json
+2025-03-29 20:49:22 [INFO] root: Processing URL: https://www.uidaho.edu/cals/services/grant-and-project-development/our-people/tenley-burke
+2025-03-29 20:49:25 [INFO] root: Completed processing https://www.uidaho.edu/cals/services/grant-and-project-development/our-people/tenley-burke
+2025-03-29 20:49:26 [INFO] root: Processing URL: https://www.uidaho.edu/cals/services/grant-and-project-development/our-people/debbie-gray
+2025-03-29 20:49:30 [INFO] root: Completed processing https://www.uidaho.edu/cals/services/grant-and-project-development/our-people/debbie-gray
+2025-03-29 20:49:30 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/harpreet-kaur
+2025-03-29 20:49:35 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/harpreet-kaur
+2025-03-29 20:49:35 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/madison-mcguire
+2025-03-29 20:49:39 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/madison-mcguire
+2025-03-29 20:49:39 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/savanah-nunes
+2025-03-29 20:49:43 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/savanah-nunes
+2025-03-29 20:49:44 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/brandi-chastain
+2025-03-29 20:49:47 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/brandi-chastain
+2025-03-29 20:49:48 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/brian-kelly
+2025-03-29 20:49:52 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/brian-kelly
+2025-03-29 20:49:52 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/carly-schoepflin
+2025-03-29 20:49:56 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/carly-schoepflin
+2025-03-29 20:49:57 [INFO] root: Saved 7 profiles to output/extracted_profiles.xlsx
+2025-03-29 20:49:57 [INFO] root: Saved 1 error reports to output/errors_extracted_profiles.xlsx
+2025-03-29 20:49:57 [INFO] root: 
+Processing Metrics:
+2025-03-29 20:49:57 [INFO] root: Total URLs processed: 8
+2025-03-29 20:49:57 [INFO] root: Successful extractions: 7
+2025-03-29 20:49:57 [INFO] root: Failed extractions: 1
+2025-03-29 20:49:57 [INFO] root: Success rate: 87.50%
+2025-03-29 20:49:57 [INFO] root: Total cost: $0.0000
+2025-03-29 20:49:57 [INFO] root: Profile extraction process completed
+2025-03-29 20:50:19 [INFO] root: Logging configured.
+2025-03-29 20:50:19 [INFO] root: Application started.
+2025-03-29 20:50:19 [INFO] root: Loaded 8 URLs from data/uidaho_urls.json
+2025-03-29 20:50:19 [INFO] root: Processing URL: https://www.uidaho.edu/cals/services/grant-and-project-development/our-people/tenley-burke
+2025-03-29 20:50:22 [INFO] root: Completed processing https://www.uidaho.edu/cals/services/grant-and-project-development/our-people/tenley-burke
+2025-03-29 20:50:23 [INFO] root: Processing URL: https://www.uidaho.edu/cals/services/grant-and-project-development/our-people/debbie-gray
+2025-03-29 20:50:28 [INFO] root: Completed processing https://www.uidaho.edu/cals/services/grant-and-project-development/our-people/debbie-gray
+2025-03-29 20:50:29 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/harpreet-kaur
+2025-03-29 20:50:35 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/harpreet-kaur
+2025-03-29 20:50:35 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/madison-mcguire
+2025-03-29 20:50:41 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/madison-mcguire
+2025-03-29 20:50:41 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/savanah-nunes
+2025-03-29 20:50:47 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/savanah-nunes
+2025-03-29 20:50:48 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/brandi-chastain
+2025-03-29 20:50:53 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/brandi-chastain
+2025-03-29 20:50:53 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/brian-kelly
+2025-03-29 20:50:59 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/brian-kelly
+2025-03-29 20:50:59 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/carly-schoepflin
+2025-03-29 20:51:04 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/carly-schoepflin
+2025-03-29 20:51:05 [INFO] root: Saved 7 profiles to output/extracted_profiles.xlsx
+2025-03-29 20:51:05 [INFO] root: Saved 1 error reports to output/errors_extracted_profiles.xlsx
+2025-03-29 20:51:05 [INFO] root: 
+Processing Metrics:
+2025-03-29 20:51:05 [INFO] root: Total URLs processed: 8
+2025-03-29 20:51:05 [INFO] root: Successful extractions: 7
+2025-03-29 20:51:05 [INFO] root: Failed extractions: 1
+2025-03-29 20:51:05 [INFO] root: Success rate: 87.50%
+2025-03-29 20:51:05 [INFO] root: Total cost: $0.0000
+2025-03-29 20:51:05 [INFO] root: Average processing time: 5865.84 ms
+2025-03-29 20:51:05 [INFO] root: Profile extraction process completed
+2025-03-29 20:52:05 [INFO] root: Logging configured.
+2025-03-29 20:52:05 [INFO] root: Application started.
+2025-03-29 20:52:05 [INFO] root: Loaded 8 URLs from data/uidaho_urls.json
+2025-03-29 20:52:05 [INFO] root: Processing URL: https://www.uidaho.edu/cals/services/grant-and-project-development/our-people/tenley-burke
+2025-03-29 20:52:08 [INFO] root: Completed processing https://www.uidaho.edu/cals/services/grant-and-project-development/our-people/tenley-burke
+2025-03-29 20:52:09 [INFO] root: Processing URL: https://www.uidaho.edu/cals/services/grant-and-project-development/our-people/debbie-gray
+2025-03-29 20:52:14 [INFO] root: Completed processing https://www.uidaho.edu/cals/services/grant-and-project-development/our-people/debbie-gray
+2025-03-29 20:52:15 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/harpreet-kaur
+2025-03-29 20:52:21 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/harpreet-kaur
+2025-03-29 20:52:21 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/madison-mcguire
+2025-03-29 20:52:26 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/madison-mcguire
+2025-03-29 20:52:27 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/savanah-nunes
+2025-03-29 20:52:32 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/savanah-nunes
+2025-03-29 20:52:33 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/brandi-chastain
+2025-03-29 20:52:38 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/brandi-chastain
+2025-03-29 20:52:39 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/brian-kelly
+2025-03-29 20:52:44 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/brian-kelly
+2025-03-29 20:52:45 [INFO] root: Processing URL: https://www.uidaho.edu/cals/people/carly-schoepflin
+2025-03-29 20:52:51 [INFO] root: Completed processing https://www.uidaho.edu/cals/people/carly-schoepflin
+2025-03-29 20:52:51 [INFO] root: Saved 7 profiles to output/extracted_profiles.xlsx
+2025-03-29 20:52:51 [INFO] root: Saved 1 error reports to output/errors_extracted_profiles.xlsx
+2025-03-29 20:52:51 [INFO] root: 
+Processing Metrics:
+2025-03-29 20:52:51 [INFO] root: Total URLs processed: 8
+2025-03-29 20:52:51 [INFO] root: Successful extractions: 7
+2025-03-29 20:52:51 [INFO] root: Failed extractions: 1
+2025-03-29 20:52:51 [INFO] root: Success rate: 87.50%
+2025-03-29 20:52:51 [INFO] root: Total cost: $0.0000
+2025-03-29 20:52:51 [INFO] root: Average processing time: 5988.98 ms
+2025-03-29 20:52:51 [INFO] root: Profile extraction process completed
