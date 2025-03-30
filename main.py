@@ -4,6 +4,7 @@ import time
 from typing import List, Dict, Any
 import pandas as pd
 from pathlib import Path
+from tqdm import tqdm
 
 # Import our application components
 from src.utils import setup_logging
@@ -151,19 +152,45 @@ def main():
         # Load URLs to process
         urls = load_urls()
 
-        # Process each URL
+        # Process each URL with a progress bar
         results = []
-        for url in urls:
-            result = process_url(url)
-            results.append(result)
-            # Optional: Add a small delay between processing URLs
-            time.sleep(0.5)
+        try:
+            for url in tqdm(
+                urls, desc="Processing URLs", unit="profile", position=0, leave=True
+            ):
+                result = process_url(url)
+                results.append(result)
+                # Optional: Add a small delay between processing URLs
+                time.sleep(0.5)
+        except KeyboardInterrupt:
+            logger.warning("Keyboard interrupt detected. Stopping gracefully...")
+            logger.info(
+                f"Processed {len(results)} out of {len(urls)} URLs before interruption"
+            )
+            if not results:
+                logger.warning(
+                    "No profiles were processed before interruption. Exiting."
+                )
+                return
+            logger.info("Saving partial results before exit...")
 
-        # Calculate and save results
-        metrics = calculate_metrics(results)
-        save_results(results, metrics)
+        # Calculate and save results (even if interrupted)
+        if results:
+            metrics = calculate_metrics(results)
+            save_results(results, metrics)
+            logger.info("Profile extraction process completed")
+            if len(results) < len(urls):
+                logger.info(
+                    f"Note: Only {len(results)}/{len(urls)} URLs were processed"
+                )
+        else:
+            logger.warning("No results to save")
 
-        logger.info("Profile extraction process completed successfully")
+    except KeyboardInterrupt:
+        # This catches a keyboard interrupt outside the URL processing loop
+        logger.warning(
+            "Keyboard interrupt detected outside processing loop. Exiting without saving."
+        )
 
     except Exception as e:
         logger.error(f"Fatal error in main process: {str(e)}")

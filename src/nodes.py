@@ -274,7 +274,6 @@ def extract_data(state: GraphState) -> GraphState:
             model=config.MODEL_NAME,
             temperature=config.LLM_TEMPERATURE,
             google_api_key=config.GOOGLE_API_KEY,
-            convert_system_message_to_human=True,  # Often recommended for Gemini
         )
 
         # Use structured output with our Pydantic model
@@ -436,7 +435,6 @@ def validate_data(state: GraphState) -> GraphState:
             model=config.JUDGE_MODEL_NAME,
             temperature=config.JUDGE_TEMPERATURE,
             google_api_key=config.GOOGLE_API_KEY,
-            convert_system_message_to_human=True,
         )
 
         # Use structured output with our ValidationResult schema
