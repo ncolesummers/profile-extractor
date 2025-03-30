@@ -14,6 +14,18 @@ import traceback  # For formatting exceptions
 from .graph import app as langgraph_app  # Import the app
 from .config import settings  # For potential config access if needed later
 from .setup import ShutdownManager  # Import type hint
+from langgraph.graph.state import StateGraph  # For type hint if needed
+from langgraph.graph import END, StateGraph
+from langgraph.checkpoint.base import Checkpoint  # For type hint
+from langgraph.prebuilt import tools_condition
+
+from .config import Settings
+from .schemas import ProfileData
+
+# from .utils import logger as utils_logger # Remove or keep if needed, prefer passed logger
+# Restore specific imports from nodes needed here
+# Remove LANGSMITH_API_KEY_SET as it's determined from settings now
+from .nodes import GEMINI_FLASH_PRICING
 
 # Setup logger for this module
 logger = logging.getLogger(__name__)
@@ -43,7 +55,7 @@ else:
 
 
 # --- Data Loading --- #
-def load_urls() -> List[str]:
+def load_urls(logger: logging.Logger) -> List[str]:
     """Load URLs from the data directory (e.g., data/uidaho_urls.json)."""
     # Determine path relative to this file or project root
     # Assuming this file is in src/ and data/ is at the project root
@@ -85,11 +97,20 @@ def load_urls() -> List[str]:
 
 
 @traceable(name="Process URL")  # Apply the decorator
-def process_url(url: str, thread_id: str = None) -> Dict[str, Any]:
+def process_url(
+    url: str,
+    langgraph_app: Any,  # Replace Any with actual CompiledGraph type if known
+    settings: Settings,
+    logger: logging.Logger,
+    thread_id: str = None,
+) -> Dict[str, Any]:
     """Process a single URL through the graph workflow.
 
     Args:
         url: The URL to process
+        langgraph_app: The compiled LangGraph application instance
+        settings: The application settings object
+        logger: The logger instance
         thread_id: Optional thread ID for LangSmith tracing
 
     Returns:
@@ -126,7 +147,7 @@ def process_url(url: str, thread_id: str = None) -> Dict[str, Any]:
         # Process the URL through our graph
         # Set metadata for LangSmith if traceable is active
         langsmith_config = {}
-        if LANGSMITH_API_KEY_SET:
+        if settings.LANGSMITH_API_KEY and settings.LANGSMITH_PROJECT:
             # Pass thread_id and other relevant info for LangSmith UI
             langsmith_config["metadata"] = {
                 "thread_id": thread_id,
@@ -135,6 +156,11 @@ def process_url(url: str, thread_id: str = None) -> Dict[str, Any]:
             }
             # If you need configurable tags:
             # langsmith_config["tags"] = ["profile_extraction", settings.ENVIRONMENT]
+            logger.debug(
+                f"Setting LangSmith metadata for {url}: {langsmith_config['metadata']}"
+            )
+        else:
+            logger.debug("LangSmith not configured, skipping metadata.")
 
         # Add thread_id to config for LangSmith run identification
         langsmith_config["configurable"] = {"thread_id": thread_id}
@@ -187,8 +213,10 @@ def process_url(url: str, thread_id: str = None) -> Dict[str, Any]:
 def run_processing_loop(
     urls: List[str],
     shutdown_manager: ShutdownManager,
-    # Optional: Pass app explicitly
-    # langgraph_app: Any # Replace Any with actual type if available
+    langgraph_app: Any,  # Replace Any with actual CompiledGraph type if known
+    settings: Settings,
+    logger: logging.Logger,
+    # Add traceable wrapper if needed, or handle in main
 ) -> Tuple[List[Dict[str, Any]], bool]:
     """
     Iterates through URLs, processes them using the LangGraph app, and handles interruptions.
@@ -196,7 +224,9 @@ def run_processing_loop(
     Args:
         urls: A list of URLs to process.
         shutdown_manager: An instance of ShutdownManager to check for shutdown requests.
-        langgraph_app: The compiled LangGraph application instance (imported in this module).
+        langgraph_app: The compiled LangGraph application instance.
+        settings: The application settings object.
+        logger: The logger instance.
 
     Returns:
         A tuple containing:
@@ -206,6 +236,40 @@ def run_processing_loop(
     results = []
     interrupted = False
     logger.info(f"Starting processing loop for {len(urls)} URLs...")
+
+    # Determine if traceable should be used based on settings
+    use_traceable = False
+    if settings.LANGSMITH_API_KEY and settings.LANGSMITH_PROJECT:
+        try:
+            from langsmith import traceable as langsmith_traceable
+
+            use_traceable = True
+            logger.debug("LangSmith traceable is available.")
+        except ImportError:
+            logger.warning(
+                "'langsmith' package not installed, tracing disabled within loop."
+            )
+            langsmith_traceable = lambda func=None, **kwargs: (
+                func if func else lambda f: f
+            )
+    else:
+        logger.debug("LangSmith not configured, tracing disabled within loop.")
+        langsmith_traceable = lambda func=None, **kwargs: (
+            func if func else lambda f: f
+        )
+
+    # Wrapper for process_url to apply traceable conditionally
+    def potentially_traced_process_url(*args, **kwargs):
+        _url = kwargs.get("url") or (args[0] if args else "unknown")
+        if use_traceable:
+
+            @langsmith_traceable(name=f"Process URL: {_url[:50]}...")
+            def traced_call():
+                return process_url(*args, **kwargs)
+
+            return traced_call()
+        else:
+            return process_url(*args, **kwargs)
 
     try:
         with tqdm(
@@ -224,15 +288,19 @@ def run_processing_loop(
 
                 # process_url now generates its own thread_id if needed
                 try:
-                    # Use the imported langgraph_app implicitly used by process_url
-                    result = process_url(
-                        url, thread_id=None
-                    )  # process_url is in the same module
+                    # Call process_url through the wrapper, passing necessary args
+                    result = potentially_traced_process_url(
+                        url=url,
+                        langgraph_app=langgraph_app,
+                        settings=settings,
+                        logger=logger,
+                        thread_id=None,  # process_url handles thread_id generation
+                    )
                     results.append(result)
                 except Exception as e:
                     # Log error during process_url call itself (should be rare if process_url catches its own errors)
                     logger.error(
-                        f"Unexpected error calling process_url for {url}: {e}",
+                        f"Unexpected error calling process_url wrapper for {url}: {e}",
                         exc_info=True,
                     )
                     # Append an error result to maintain consistency

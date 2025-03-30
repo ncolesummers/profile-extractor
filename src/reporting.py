@@ -9,7 +9,7 @@ from .config import Settings  # Assuming Settings is the class in config.py
 from .utils import format_duration
 from .nodes import GEMINI_FLASH_PRICING  # For token cost estimation fallback
 
-# Get logger for this module
+# Module-level logger (will be overwritten by passed logger in functions)
 logger = logging.getLogger(__name__)
 
 # Note: langsmith_client is passed as an argument where needed
@@ -18,6 +18,7 @@ logger = logging.getLogger(__name__)
 def calculate_metrics(
     results: List[Dict[str, Any]],
     settings: Settings,
+    logger: logging.Logger,
     langsmith_client: Union[Any, None] = None,
 ) -> Dict[str, Any]:
     """Calculate aggregate metrics from the results."""
@@ -239,7 +240,10 @@ def calculate_metrics(
 
 
 def save_results(
-    results: List[Dict[str, Any]], metrics: Dict[str, Any], settings: Settings
+    results: List[Dict[str, Any]],
+    metrics: Dict[str, Any],
+    settings: Settings,
+    logger: logging.Logger,
 ):
     """Save extracted profiles to Excel and log metrics."""
     if not settings.OUTPUT_DIR or not settings.OUTPUT_FILENAME:

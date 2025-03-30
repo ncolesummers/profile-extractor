@@ -87,29 +87,30 @@
 
 **6. Refactor `main.py` Orchestration**
 
-*   [ ] **Goal:** Simplify `main.py` to only coordinate the application flow.
-*   [ ] Remove all functions and logic that were moved to other modules (`process_url`, `calculate_metrics`, `save_results`, `cleanup_resources`, `load_urls`, signal handlers, setup logic, global flags).
-*   [ ] Keep the main execution block (`if __name__ == "__main__":`) and the `main()` function.
-*   [ ] Inside `main()`:
+*   [x] **Goal:** Simplify `main.py` to only coordinate the application flow.
+*   [x] Remove all functions and logic that were moved to other modules (`process_url`, `calculate_metrics`, `save_results`, `cleanup_resources`, `load_urls`, signal handlers, setup logic, global flags).
+*   [x] Keep the main execution block (`if __name__ == "__main__":`) and the `main()` function.
+*   [x] Inside `main()`:
     *   Perform imports from the new modules (`src.config`, `src.setup`, `src.processing`, `src.reporting`, `src.cleanup`, `src.graph`).
-    *   Initialize: Call setup functions (`setup_logging`, create `shutdown_manager`, `setup_langsmith`, `register_signal_handlers`).
-    *   Get LangGraph App: `from src.graph import app` (or pass it around if necessary).
-    *   Wrap the core logic in a `try...finally` block.
+    *   Initialize: Call setup functions (`setup_logging`, create `shutdown_manager`, `setup_langsmith`, `register_signal_handlers`), create logger, LangSmith client.
+    *   Get LangGraph App: `from src.graph import app as langgraph_app`.
+    *   Wrap the core logic in a `try...except...finally` block.
     *   **Try Block:**
         *   Record `start_time`.
-        *   Load URLs (`urls = load_urls()`).
-        *   Run processing (`results, interrupted = run_processing_loop(urls, app, shutdown_manager)`).
-        *   Check if results exist and `not interrupted` (or based on desired logic).
-        *   Calculate metrics (`metrics = calculate_metrics(results, langsmith_client, settings)`).
-        *   Save results (`save_results(results, metrics, settings)`).
-        *   Log success messages.
-    *   **Except Block:** Catch top-level exceptions, log them.
+        *   Load URLs (`urls = load_urls(logger)`).
+        *   Run processing (`results, interrupted = run_processing_loop(urls, langgraph_app, shutdown_manager, settings, logger)`).
+        *   Check if results exist and `not interrupted`.
+        *   Calculate metrics (`metrics = calculate_metrics(results, settings, logger, langsmith_client)`).
+        *   Save results (`save_results(results, metrics, settings, logger)`).
+        *   Log success/interruption messages.
+    *   **Except Block:** Catch top-level exceptions (including `FileNotFoundError`), log them, set exit code.
     *   **Finally Block:**
         *   Calculate and log `total_duration`.
-        *   Call the main cleanup function (`cleanup_resources(langsmith_client, app)` - pass necessary resources if they aren't accessible globally or via context managers).
-        *   Log final "exiting" message.
-        *   Use `sys.exit(0)` for success or `sys.exit(1)` for errors caught in the `except` block.
-*   [ ] Review all imports in `main.py` to ensure only necessary ones remain.
+        *   Call the main cleanup function (`cleanup_resources(logger, langsmith_client)`).
+        *   Log final "exiting" message with exit code.
+        *   Use `sys.exit(exit_code)`.
+*   [x] Review all imports in `main.py` to ensure only necessary ones remain.
+*   [x] Added top-level `if __name__ == "__main__":` exception handling for catastrophic failures before/after `main()`.
 
 **7. Introduce Application Class**
 
