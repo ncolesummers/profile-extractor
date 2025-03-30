@@ -2,9 +2,11 @@ import logging
 import sys
 import os
 import json
+import time  # Added for format_duration
 from datetime import datetime
 from pathlib import Path
 from .config import LOG_TO_FILE, LOG_FILE_PATH  # Import logging configuration
+import tiktoken
 
 
 def setup_logging(level=logging.INFO):
@@ -28,9 +30,20 @@ def setup_logging(level=logging.INFO):
     # Add file handler if configured
     if LOG_TO_FILE:
         try:
-            file_handler = logging.FileHandler(LOG_FILE_PATH)
+            log_path = Path(LOG_FILE_PATH)
+            # Create directory if it doesn't exist
+            log_path.parent.mkdir(parents=True, exist_ok=True)
+            # Add timestamp to filename
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            log_filename = f"{log_path.stem}_{timestamp}{log_path.suffix}"
+            final_log_path = log_path.parent / log_filename
+
+            file_handler = logging.FileHandler(final_log_path)
             file_handler.setFormatter(log_formatter)
             root_logger.addHandler(file_handler)
+            root_logger.info(
+                f"Logging to file: {final_log_path}"
+            )  # Log the actual path used
         except PermissionError:
             root_logger.warning(
                 f"Could not open log file {LOG_FILE_PATH} for writing. "
@@ -94,3 +107,49 @@ def dump_debug_info(state, debug_dir="logs/debug"):
 # from .utils import setup_logging
 # logger = setup_logging()
 # logger.info("Application started.")
+
+
+# Add the new helper function at the end of the file
+def format_duration(seconds: float) -> str:
+    """Formats a duration in seconds into a human-readable string."""
+    if seconds < 0:
+        return "0s"
+
+    total_seconds = int(seconds)
+    milliseconds = int((seconds - total_seconds) * 1000)
+
+    days, remainder = divmod(total_seconds, 86400)
+    hours, remainder = divmod(remainder, 3600)
+    minutes, secs = divmod(remainder, 60)
+
+    parts = []
+    if days > 0:
+        parts.append(f"{days}d")
+    if hours > 0:
+        parts.append(f"{hours}h")
+    if minutes > 0:
+        parts.append(f"{minutes}m")
+    if secs > 0:
+        parts.append(f"{secs}s")
+    if milliseconds > 0 and not parts:  # Only show ms if duration is less than 1 second
+        parts.append(f"{milliseconds}ms")
+    elif not parts and total_seconds == 0 and milliseconds == 0:
+        return "0s"
+
+    return " ".join(parts)
+
+
+def count_tokens(text: str) -> int:
+    """Count tokens in a string using tiktoken's cl100k_base encoding.
+
+    This is a fallback for when the model doesn't provide token counts.
+    Using cl100k_base as a reasonable approximation for Gemini models.
+    """
+    try:
+        encoding = tiktoken.get_encoding("cl100k_base")
+        tokens = encoding.encode(text)
+        return len(tokens)
+    except Exception:
+        # If encoding fails, use a rough approximation
+        # Approximate 4 characters per token on average
+        return len(text) // 4

@@ -4,6 +4,8 @@ import traceback
 from typing import Optional
 from bs4 import BeautifulSoup
 import json
+import uuid
+import os
 
 # Import the GraphState TypedDict
 from .state import GraphState
@@ -19,10 +21,28 @@ from langchain_core.exceptions import (
 from pydantic import ValidationError  # Handles Pydantic validation issues
 from google.api_core import exceptions as google_exceptions  # For Google API errors
 from langchain.output_parsers import PydanticOutputParser
-from .utils import dump_debug_info
+from .utils import dump_debug_info, count_tokens
 
 # Import schemas
 from .schemas import ProfileData, ValidationResult, ValidationStatus
+
+# Import LangChain tracing components
+from langchain.callbacks.tracers.langchain import wait_for_all_tracers
+
+# Import LangSmith client for manual tracking if API key exists
+if config.LANGSMITH_API_KEY:
+    from langsmith import Client, traceable
+
+    langsmith_client = Client(api_key=config.LANGSMITH_API_KEY)
+else:
+    langsmith_client = None
+
+    # Define a no-op traceable if langsmith is not available
+    def traceable(func=None, **kwargs):
+        if func:
+            return func
+        return lambda f: f
+
 
 # Placeholder for cost calculation (replace with actual Gemini pricing)
 # Prices per 1 million tokens (Input, Output)
@@ -244,39 +264,51 @@ def extract_data(state: GraphState) -> GraphState:
     """
     print(f"--- Node: extract_data for URL: {state['url']} ---")
     metrics = state.get("metrics", {})
-    extracted_profile: Optional[ProfileData] = None
+    extracted_profile = None
     error_message = None
     error_details_dict = None
 
     # --- Input Validation ---
     if state.get("error"):  # Check for errors from previous nodes
         print("Skipping extraction due to previous error.")
-        return state
+        return state  # Skip if an error occurred before
 
     preprocessed_content = state.get("preprocessed_content")
     if not preprocessed_content:
-        error_message = "No preprocessed content found to extract data from."
-        print(f"Error: {error_message}")
-        updated_state: GraphState = {
-            **state,  # type: ignore
-            "metrics": metrics,
-            "error": error_message,
-            "error_details": {"message": error_message},
-        }
-        return updated_state
+        print("No preprocessed content found. Using empty string instead.")
+        preprocessed_content = ""  # Could continue with an empty string or set error
 
+    # --- Extraction ---
     extract_start_time = time.time()
     input_tokens = 0
     output_tokens = 0
+    total_tokens = 0
     cost = 0.0
+    run_id = None
 
     try:
-        # --- LLM and Prompt Setup ---
+        # --- LLM Setup ---
+        run_id = str(uuid.uuid4())
+
+        # Get thread_id from state for LangSmith tracing
+        thread_id = state.get("thread_id")
+
+        # Create metadata with thread_id for tracing
+        metadata = {
+            "url": state["url"],
+            "run_id": run_id,
+            "operation": "extract_data",
+            "thread_id": thread_id,  # Include thread_id in metadata
+        }
+
+        # Initialize LLM with metadata
         llm = ChatGoogleGenerativeAI(
             model=config.MODEL_NAME,
             temperature=config.LLM_TEMPERATURE,
             google_api_key=config.GOOGLE_API_KEY,
-            stream_usage=True,  # Attempt to enable usage metadata
+            stream_usage=True,  # Enable usage metadata
+            metadata=metadata,  # Add metadata for tracing
+            tags=["extraction"],  # Add tags for better filtering in LangSmith
         )
 
         # Use structured output with our Pydantic model
@@ -306,6 +338,9 @@ def extract_data(state: GraphState) -> GraphState:
         # --- Invocation and Metadata Handling ---\
         ai_message = chain.invoke({"page_content": preprocessed_content})
 
+        # Ensure tracers have completed
+        wait_for_all_tracers()
+
         # --- Extract Metadata ---
         # AI Engineer Note: Accessing token usage from AIMessage.response_metadata
         usage_metadata = getattr(ai_message, "response_metadata", {}).get(
@@ -319,6 +354,32 @@ def extract_data(state: GraphState) -> GraphState:
             "total_token_count", input_tokens + output_tokens
         )
 
+        # Manually update token counts in LangSmith if we have the client
+        try:
+            if langsmith_client and input_tokens > 0 and run_id:
+                latest_runs = langsmith_client.list_runs(
+                    filter=f"tags.operation = extract_data AND metadata.thread_id = '{thread_id}'",
+                    execution_order=-1,
+                    limit=1,
+                )
+                for run in latest_runs:
+                    # Update token usage for the run
+                    feedback = {
+                        "input_tokens": input_tokens,
+                        "output_tokens": output_tokens,
+                        "total_tokens": total_tokens,
+                        "thread_id": thread_id,  # Include thread_id in feedback
+                    }
+                    langsmith_client.create_feedback(
+                        run.id,
+                        "token_usage",
+                        score=1.0,  # Not relevant for token usage
+                        value=feedback,
+                    )
+                    print(f"Updated token usage in LangSmith for run: {run.id}")
+        except Exception as e:
+            print(f"Error updating LangSmith token usage: {e}")
+
         if input_tokens > 0 or output_tokens > 0:
             cost = calculate_cost(input_tokens, output_tokens)
             print(
@@ -327,6 +388,15 @@ def extract_data(state: GraphState) -> GraphState:
         else:
             # This case might still happen if the API response structure changes or lacks metadata
             print("LLM call successful, but could not retrieve token usage metadata.")
+            # Use fallback tokenizer to estimate token counts
+            prompt_text = prompt.format(page_content=preprocessed_content)
+            input_tokens = count_tokens(prompt_text)
+            output_tokens = count_tokens(str(ai_message.content))
+            total_tokens = input_tokens + output_tokens
+            cost = calculate_cost(input_tokens, output_tokens)
+            print(
+                f"Estimated tokens using fallback tokenizer - Input: {input_tokens}, Output: {output_tokens}, Total: {total_tokens}"
+            )
 
         # --- Parse the Output ---
         try:
@@ -477,14 +547,29 @@ def validate_data(state: GraphState) -> GraphState:
     judge_input_tokens = 0
     judge_output_tokens = 0
     judge_cost = 0.0
+    run_id = None
 
     try:
         # --- Judge LLM and Prompt Setup ---
+        run_id = str(uuid.uuid4())
+
+        # Get thread_id from state for LangSmith tracing
+        thread_id = state.get("thread_id")
+
+        metadata = {
+            "url": state["url"],
+            "run_id": run_id,
+            "operation": "validate_data",
+            "thread_id": thread_id,  # Include thread_id in metadata
+        }
+
         judge_llm = ChatGoogleGenerativeAI(
             model=config.JUDGE_MODEL_NAME,
             temperature=config.JUDGE_TEMPERATURE,
             google_api_key=config.GOOGLE_API_KEY,
-            stream_usage=True,  # Attempt to enable usage metadata
+            stream_usage=True,  # Enable usage metadata
+            metadata=metadata,  # Add metadata for tracing
+            tags=["validation"],  # Add tags for better filtering in LangSmith
         )
 
         # Use structured output with our ValidationResult schema
@@ -554,6 +639,54 @@ def validate_data(state: GraphState) -> GraphState:
             "total_token_count", judge_input_tokens + judge_output_tokens
         )
 
+        # Manually update token counts in LangSmith if we have the client
+        try:
+            if langsmith_client and judge_input_tokens > 0 and run_id:
+                latest_runs = langsmith_client.list_runs(
+                    filter=f"tags.operation = validate_data AND metadata.thread_id = '{thread_id}'",
+                    execution_order=-1,
+                    limit=1,
+                )
+                for run in latest_runs:
+                    # Update token usage for the run
+                    feedback = {
+                        "input_tokens": judge_input_tokens,
+                        "output_tokens": judge_output_tokens,
+                        "total_tokens": judge_total_tokens,
+                        "thread_id": thread_id,  # Include thread_id in feedback
+                    }
+                    langsmith_client.create_feedback(
+                        run.id,
+                        "token_usage",
+                        score=1.0,  # Not relevant for token usage
+                        value=feedback,
+                    )
+                    print(f"Updated token usage in LangSmith for run: {run.id}")
+
+                    # Add validation result as quality feedback
+                    if validation_result and hasattr(
+                        validation_result, "overall_status"
+                    ):
+                        # Map validation status to score (1.0 = correct, 0.0 = incorrect)
+                        quality_score = (
+                            1.0
+                            if validation_result.overall_status
+                            == ValidationStatus.CORRECT
+                            else 0.0
+                        )
+                        langsmith_client.create_feedback(
+                            run.id,
+                            "validation_quality",
+                            score=quality_score,
+                            value={
+                                "validation_result": validation_result.model_dump(),
+                                "thread_id": thread_id,
+                            },
+                        )
+                        print(f"Added validation quality feedback for run: {run.id}")
+        except Exception as e:
+            print(f"Error updating LangSmith validation feedback: {e}")
+
         if judge_input_tokens > 0 or judge_output_tokens > 0:
             judge_cost = calculate_cost(judge_input_tokens, judge_output_tokens)
             print(
@@ -563,6 +696,17 @@ def validate_data(state: GraphState) -> GraphState:
         else:
             print(
                 "LLM Judge call successful, but could not retrieve judge token usage metadata."
+            )
+            # Use fallback tokenizer to estimate token counts
+            prompt_text = judge_prompt.format(
+                source_text=preprocessed_content, extracted_data=extracted_data_str
+            )
+            judge_input_tokens = count_tokens(prompt_text)
+            judge_output_tokens = count_tokens(str(judge_ai_message.content))
+            judge_total_tokens = judge_input_tokens + judge_output_tokens
+            judge_cost = calculate_cost(judge_input_tokens, judge_output_tokens)
+            print(
+                f"Estimated judge tokens using fallback tokenizer - Input: {judge_input_tokens}, Output: {judge_output_tokens}, Total: {judge_total_tokens}"
             )
 
         # --- Parse the Output ---

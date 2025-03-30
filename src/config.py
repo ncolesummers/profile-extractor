@@ -11,6 +11,22 @@ if not GOOGLE_API_KEY:
         "GOOGLE_API_KEY not found in environment variables. Please set it in the .env file."
     )
 
+# --- LangSmith Configuration ---
+LANGSMITH_API_KEY = os.getenv("LANGSMITH_API_KEY")
+LANGSMITH_PROJECT = os.getenv("LANGSMITH_PROJECT", "profile-extractor")
+LANGSMITH_TRACING_V2 = os.getenv("LANGSMITH_TRACING_V2", "true")
+
+# --- Thread Tracking Configuration ---
+# Enable thread tracking for organizing related LLM calls
+ENABLE_THREAD_TRACKING = True
+# The prefix used for thread IDs to make them easily identifiable
+THREAD_ID_PREFIX = "profile-thread"
+# Session metadata to include with every run
+SESSION_METADATA = {
+    "app_version": "0.1.0",
+    "environment": os.getenv("ENVIRONMENT", "development"),
+}
+
 # --- Model Configuration ---
 # Use gemini-2.0-flash-latest for a balance of speed and capability
 MODEL_NAME = "gemini-2.0-flash"
