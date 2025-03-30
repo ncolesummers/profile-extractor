@@ -13,12 +13,12 @@ if not GOOGLE_API_KEY:
 
 # --- Model Configuration ---
 # Use gemini-2.0-flash-latest for a balance of speed and capability
-MODEL_NAME = "gemini-2.0-flash-latest"
+MODEL_NAME = "gemini-2.0-flash"
 LLM_TEMPERATURE = 0.1  # Low temperature for deterministic extraction
 
 # --- Judge Model Configuration ---
 # Can use the same model or a different one (e.g., a more powerful model if needed)
-JUDGE_MODEL_NAME = "gemini-2.0-flash-latest"
+JUDGE_MODEL_NAME = "gemini-2.0-flash"
 JUDGE_TEMPERATURE = 0.1  # Low temperature for consistent validation
 
 # --- Crawling Configuration ---

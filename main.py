@@ -13,7 +13,7 @@ from src.schemas import ProfileData
 
 # Set up logging
 logger = setup_logging()
-logger.info("Starting profile extraction process")
+logger.info("Application started.")
 
 
 def load_urls() -> List[str]:

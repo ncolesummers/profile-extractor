@@ -39,10 +39,10 @@ def setup_logging(level=logging.INFO):
             )
 
     root_logger.info("Logging configured.")
+    return root_logger
 
 
 # Example of how to call this at the start of your main script:
 # from .utils import setup_logging
-# setup_logging()
-# logger = logging.getLogger(__name__)
+# logger = setup_logging()
 # logger.info("Application started.")
