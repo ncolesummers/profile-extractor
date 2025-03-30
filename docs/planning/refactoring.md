@@ -69,21 +69,21 @@
 
 **5. Resource Cleanup (`src/cleanup.py`)**
 
-*   [ ] **Goal:** Centralize cleanup logic and address root causes of forced cleanup.
-*   [ ] Create `src/cleanup.py`.
-*   [ ] Move the `cleanup_resources` function from `main.py` to `src/cleanup.py`.
-    *   Remove the global `_cleanup_done` flag logic. The function can be called once from `main.py`'s `finally` block.
-*   [ ] **Investigate Cleanup Issues:**
-    *   **LangSmith:** Consult LangSmith client documentation for the recommended way to shut down and ensure all background tasks/threads are properly terminated. Does `client.close()` suffice? Is `auto_batch_tracing=False` contributing?
-    *   **LangGraph:** Review how the `app` object (`app.close()`, `app.shutdown()`) is intended to be cleaned up. Ensure the graph itself doesn't have long-running or blocking operations that prevent graceful shutdown. Check if `config={"max_concurrency": 1}` in `process_url` truly prevents all internal concurrency issues.
-    *   **Threading:** Identify *which* specific threads are not exiting cleanly by adding more detailed logging in the original `cleanup_resources` *before* moving it (e.g., log thread names and states). Address the root cause in the relevant component (LangSmith, LangGraph, custom threads).
-*   [ ] **Refactor `cleanup_resources`:** Aim to remove the need to force threads to daemon status (`thread.daemon = True`) and eliminate the call to `os._exit(0)`. Proper resource management (e.g., using context managers `with ...:`) and fixing underlying blocking calls should be prioritized.
-*   [ ] Update `main.py`:
-    *   Import `cleanup_resources` from `src/cleanup.py`.
-    *   Call it within the main `finally` block.
-    *   Remove the `_cleanup_done` global flag.
-    *   Remove the explicit LangGraph `app.close()` / `app.shutdown()` calls from the `finally` block if this cleanup is now handled reliably within `cleanup_resources` or via context managers.
-    *   Remove the final thread monitoring loop and `os._exit(0)` call in the `finally` block. The goal is a clean `sys.exit(0)`.
+*   [x] **Goal:** Centralize cleanup logic and address root causes of forced cleanup.
+*   [x] Create `src/cleanup.py`.
+*   [x] Move the `cleanup_resources` function from `main.py` to `src/cleanup.py`.
+    *   [x] Remove the global `_cleanup_done` flag logic. The function can be called once from `main.py`'s `finally` block.
+*   [x] **Investigate Cleanup Issues:**
+    *   [x] LangSmith: Consulted documentation/refined `flush` calls.
+    *   [x] LangGraph: Confirmed no explicit cleanup needed; relies on GC.
+    *   [x] Threading: Root cause addressed by removing metrics threading; forced daemonization/exit removed.
+*   [x] **Refactor `cleanup_resources`:** Removed need for forced daemonization and `os._exit(0)`. *(Refactoring and investigation complete)*.
+*   [x] Update `main.py`:
+    *   [x] Import `cleanup_resources` from `src/cleanup.py`.
+    *   [x] Call it within the main `finally` block.
+    *   [x] Remove the `_cleanup_done` global flag.
+    *   [x] Remove the explicit LangGraph `app.close()` / `app.shutdown()` calls from the `finally` block.
+    *   [x] Remove the final thread monitoring loop and `os._exit(0)` call in the `finally` block. Goal of clean `sys.exit(0)` achieved.
 
 **6. Refactor `main.py` Orchestration**
 
