@@ -114,8 +114,8 @@
 
 **7. Introduce Application Class**
 
-*   [ ] **Goal:** Encapsulate state and lifecycle management.
-*   [ ] Define an `App` class (e.g., in `main.py` or `src/app_class.py`).
-*   [ ] Move state variables (e.g., `settings`, `langsmith_client`, `shutdown_manager`, `results`) to instance attributes (`self.settings`, etc.).
-*   [ ] Convert functions like `setup_logging`, `setup_langsmith`, `run_processing_loop`, `calculate_metrics`, `save_results`, `cleanup_resources` into methods of the class.
-*   [ ] The `main()` function would then instantiate the `App` class and call its main execution method (e.g., `app.run()`).
+*   [x] **Goal:** Encapsulate state and lifecycle management.
+*   [x] Define an `App` class (e.g., in `main.py` or `src/app_class.py`).
+*   [x] Move state variables (e.g., `settings`, `langsmith_client`, `shutdown_manager`, `results`) to instance attributes (`self.settings`, etc.).
+*   [x] Convert functions like `setup_logging`, `setup_langsmith`, `run_processing_loop`, `calculate_metrics`, `save_results`, `cleanup_resources` into methods of the class.
+*   [x] The `main()` function would then instantiate the `App` class and call its main execution method (e.g., `app.run()`).

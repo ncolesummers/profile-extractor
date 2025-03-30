@@ -2,169 +2,200 @@ import os
 import time
 import sys
 import uuid
-import logging  # Import logging directly
-from typing import List, Dict, Any
+import logging
+from typing import List, Dict, Any, Optional, Tuple
 
 # Force LangChain daemon threads EARLY
 os.environ["LANGCHAIN_HANDLER_THREAD_DAEMON"] = "true"
 
 # Import application components
-from src.config import settings
+from src.config import settings, Settings  # Import Settings type hint
 from src.setup import (
-    setup_logging,  # Function to create the logger
-    setup_langsmith,  # Function to setup LangSmith client
-    ShutdownManager,  # Class for managing shutdown
-    register_signal_handlers,  # Function to register handlers
+    setup_logging,
+    setup_langsmith,
+    ShutdownManager,
+    register_signal_handlers,
 )
 from src.utils import format_duration
-from src.graph import app as langgraph_app  # Import the compiled LangGraph app
+from src.graph import app as langgraph_app
 from src.processing import run_processing_loop, load_urls
 from src.cleanup import cleanup_resources
 from src.reporting import calculate_metrics, save_results
 
-# Remove global logger and langsmith_client setup
-# logger = setup_logging()
-# langsmith_client = setup_langsmith(settings, logger)
-
-# Remove conditional traceable import - handled in processing.py
-# if langsmith_client:
-#     ...
-# else:
-#     ...
+# LangSmith client type hint (replace with actual type if available)
+LangSmithClient = Any
 
 
-def main():
-    """Main entry point for the profile extraction process."""
+class ProfileExtractorApp:
+    """Encapsulates the profile extraction application state and logic."""
 
-    # --- Initialization within main --- #
-    logger = setup_logging()
-    logger.info("Application started.")
+    def __init__(self):
+        """Initialize the application."""
+        self.settings: Settings = settings
+        self.logger: logging.Logger = setup_logging()
+        self.shutdown_manager: ShutdownManager = ShutdownManager()
+        self.langsmith_client: Optional[LangSmithClient] = None
+        self.results: List[Dict[str, Any]] = []
+        self.interrupted: bool = False
+        self.exit_code: int = 0
+        self.start_time: Optional[float] = None
 
-    # Pass logger to LangSmith setup
-    langsmith_client = setup_langsmith(settings, logger)
+    def _setup_app(self) -> None:
+        """Perform initial setup tasks like logging, LangSmith, and signal handling."""
+        self.logger.info("Application setup started.")
+        self.langsmith_client = setup_langsmith(self.settings, self.logger)
+        register_signal_handlers(self.shutdown_manager, self.logger)
+        self.logger.info("Application setup complete.")
 
-    shutdown_manager = ShutdownManager()
-
-    # Pass logger to signal handler registration
-    register_signal_handlers(shutdown_manager, logger)
-
-    session_id = f"extraction-session-{uuid.uuid4()}"
-    logger.info(f"Starting extraction session: {session_id}")
-
-    start_time = time.time()
-    results = []
-    interrupted = False
-    exit_code = 0  # Default to success
-
-    try:
-        # Pass logger to load_urls
-        urls = load_urls(logger)
-
-        # Pass logger, settings, and app to processing loop
-        results, interrupted = run_processing_loop(
-            urls, shutdown_manager, langgraph_app, settings, logger
-        )
-
-        # --- Metrics Calculation --- #
+    def _calculate_metrics(self) -> Dict[str, Any]:
+        """Calculate metrics based on the processing results."""
         metrics = {}
-        if interrupted:
-            logger.warning(
-                f"Processing interrupted. Calculating metrics for {len(results)} completed URLs."
+        if self.interrupted:
+            self.logger.warning(
+                f"Processing interrupted. Calculating metrics for {len(self.results)} completed URLs."
             )
-            if results:
+            if self.results:
                 try:
-                    logger.info("Calculating metrics for partial results...")
-                    # Pass logger, settings, and client
+                    self.logger.info("Calculating metrics for partial results...")
                     metrics = calculate_metrics(
-                        results, settings, logger, langsmith_client
+                        self.results, self.settings, self.logger, self.langsmith_client
                     )
-                    logger.info("Partial metrics calculation complete.")
+                    self.logger.info("Partial metrics calculation complete.")
                 except Exception as e:
-                    logger.error(
+                    self.logger.error(
                         f"Error calculating partial metrics: {e}", exc_info=True
                     )
             else:
-                logger.warning("No results processed, skipping metrics.")
-        elif not results:
-            logger.warning("No results generated. Skipping metrics calculation.")
+                self.logger.warning("No results processed, skipping metrics.")
+        elif not self.results:
+            self.logger.warning("No results generated. Skipping metrics calculation.")
         else:
             try:
-                logger.info("Calculating final metrics...")
-                # Pass logger, settings, and client
-                metrics = calculate_metrics(results, settings, logger, langsmith_client)
-                logger.info("Metrics calculation complete.")
+                self.logger.info("Calculating final metrics...")
+                metrics = calculate_metrics(
+                    self.results, self.settings, self.logger, self.langsmith_client
+                )
+                self.logger.info("Metrics calculation complete.")
             except Exception as e:
-                logger.error(f"Error calculating final metrics: {e}", exc_info=True)
+                self.logger.error(
+                    f"Error calculating final metrics: {e}", exc_info=True
+                )
+        return metrics
 
-        # --- Save Results --- #
-        if results:
-            logger.info("Saving results...")
+    def _save_results(self, metrics: Dict[str, Any]) -> None:
+        """Save the processing results and metrics."""
+        if self.results:
+            self.logger.info("Saving results...")
             try:
-                # Pass logger and settings
-                save_results(results, metrics, settings, logger)
-                logger.info("Results saving process complete.")
+                save_results(self.results, metrics, self.settings, self.logger)
+                self.logger.info("Results saving process complete.")
             except Exception as e:
-                logger.error(f"Error saving results: {e}", exc_info=True)
+                self.logger.error(f"Error saving results: {e}", exc_info=True)
         else:
-            logger.warning("No results generated, nothing to save.")
+            self.logger.warning("No results generated, nothing to save.")
 
-        if interrupted:
-            logger.info("Processing was interrupted by user or signal.")
-        else:
-            logger.info("Profile extraction process completed successfully.")
+    def _cleanup(self) -> None:
+        """Perform resource cleanup."""
+        self.logger.info("Starting resource cleanup.")
+        cleanup_resources(self.logger, self.langsmith_client)
+        self.logger.info("Resource cleanup finished.")
 
-    except FileNotFoundError as e:  # Specific catch for URL loading issues
-        logger.error(f"Fatal error: {e}. Cannot load URLs.")
-        exit_code = 1
-    except Exception as e:
-        logger.error(f"Fatal error in main process: {str(e)}", exc_info=True)
-        exit_code = 1
-        # Cleanup will happen in finally
+    def run(self) -> None:
+        """Run the main profile extraction process."""
+        self.logger.info("Application run method started.")
+        self._setup_app()  # Setup logging, LangSmith, signals
 
-    finally:
-        end_time = time.time()
-        total_duration = end_time - start_time
-        logger.info(f"Total execution time: {format_duration(total_duration)}")
+        session_id = f"extraction-session-{uuid.uuid4()}"
+        self.logger.info(f"Starting extraction session: {session_id}")
 
-        # Pass logger and client to cleanup
-        # Note: The global _cleanup_done flag inside cleanup_resources prevents double execution
-        # even if called from both the except block (pre-finally) and here.
-        cleanup_resources(logger, langsmith_client)
+        self.start_time = time.time()
 
-        logger.info(f"Exiting with code {exit_code}.")
-        # Use sys.exit with the determined code
-        # Note: If cleanup hangs, this exit might still be blocked. The cleanup refactoring aimed to prevent hangs.
-        sys.exit(exit_code)
+        try:
+            # --- Load Data ---
+            urls = load_urls(self.logger)
+
+            # --- Processing ---
+            self.results, self.interrupted = run_processing_loop(
+                urls, self.shutdown_manager, langgraph_app, self.settings, self.logger
+            )
+
+            # --- Metrics Calculation ---
+            metrics = self._calculate_metrics()
+
+            # --- Save Results ---
+            self._save_results(metrics)
+
+            if self.interrupted:
+                self.logger.info("Processing was interrupted by user or signal.")
+            else:
+                self.logger.info("Profile extraction process completed successfully.")
+
+        except FileNotFoundError as e:
+            self.logger.error(f"Fatal error: {e}. Cannot load URLs.")
+            self.exit_code = 1
+        except Exception as e:
+            self.logger.error(f"Fatal error in main process: {str(e)}", exc_info=True)
+            self.exit_code = 1
+            # Cleanup will happen in finally
+
+        finally:
+            if self.start_time:
+                end_time = time.time()
+                total_duration = end_time - self.start_time
+                self.logger.info(
+                    f"Total execution time: {format_duration(total_duration)}"
+                )
+
+            self._cleanup()  # Call the cleanup method
+
+            self.logger.info(f"Exiting with code {self.exit_code}.")
+            # Use sys.exit with the determined code
+            sys.exit(self.exit_code)
+
+
+def main():
+    """Instantiates and runs the ProfileExtractorApp."""
+    # Instantiate the app here, so its logger might be available
+    # even if run() fails early.
+    app = ProfileExtractorApp()
+    app.run()  # This method now contains the sys.exit call
 
 
 if __name__ == "__main__":
-    # Keep top-level try-except for unexpected crashes before main() starts or after it exits
-    # Note: logger might not be initialized if error happens *before* main()
-    # Consider basic logging config here or ensure setup_logging is robust
+    app_instance = None
     try:
-        main()  # This now contains the sys.exit call
-    except SystemExit as e:  # Catch sys.exit to prevent double logging/cleanup
-        # main() already handled logging and cleanup before exiting
-        pass  # Exit silently as intended
+        # Instantiate the app *outside* the main try block
+        # So that the 'except' block can potentially use its logger/cleanup
+        app_instance = ProfileExtractorApp()
+        # Run the application logic which includes its own try/except/finally and sys.exit
+        app_instance.run()
+    except SystemExit as e:
+        # Catch sys.exit to prevent double logging/cleanup if run() exits normally
+        pass  # Exit silently as intended by app.run()
     except Exception as e:
-        # Log critical error if main() failed catastrophically before its own logging/cleanup
-        # It's possible logger isn't set up yet here
-        try:
-            logging.getLogger(__name__).critical(
-                f"Unhandled top-level exception: {e}", exc_info=True
-            )
-        except Exception:  # Fallback if even basic logging fails
-            print(f"CRITICAL UNHANDLED EXCEPTION: {e}", file=sys.stderr)
+        # Log critical error if app instantiation or run() failed catastrophically
+        # before its own logging/cleanup could handle it.
+        logger = getattr(
+            app_instance, "logger", logging.getLogger(__name__)
+        )  # Use app logger if available
+        logger.critical(f"Unhandled top-level exception: {e}", exc_info=True)
 
-        # Attempt last-ditch cleanup, might fail if resources are badly broken
-        try:
-            # Attempt cleanup without logger/client if main didn't initialize them
-            # This relies on cleanup_resources handling None inputs gracefully
-            cleanup_resources(logging.getLogger(__name__), None)
-        except Exception as cleanup_err:
-            print(
-                f"CRITICAL: Error during final cleanup attempt: {cleanup_err}",
-                file=sys.stderr,
-            )
+        # Attempt last-ditch cleanup using the app instance if available
+        if app_instance:
+            try:
+                app_instance._cleanup()
+            except Exception as cleanup_err:
+                logger.error(
+                    f"Error during final cleanup attempt: {cleanup_err}", exc_info=True
+                )
+        else:
+            # Fallback cleanup if app couldn't even be instantiated
+            try:
+                cleanup_resources(logging.getLogger(__name__), None)
+            except Exception as cleanup_err:
+                print(
+                    f"CRITICAL: Error during fallback cleanup attempt: {cleanup_err}",
+                    file=sys.stderr,
+                )
 
         sys.exit(1)  # Exit with error code after attempting log/cleanup
