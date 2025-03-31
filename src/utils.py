@@ -52,13 +52,6 @@ def dump_debug_info(state, debug_dir="logs/debug"):
     return debug_file
 
 
-# Example of how to call this at the start of your main script:
-# from .utils import setup_logging
-# logger = setup_logging()
-# logger.info("Application started.")
-
-
-# Add the new helper function at the end of the file
 def format_duration(seconds: float) -> str:
     """Formats a duration in seconds into a human-readable string."""
     if seconds < 0:

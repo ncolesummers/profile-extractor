@@ -1,7 +1,7 @@
 Act as an expert Technical Writer skilled in documenting Python projects, APIs, and data processing workflows for technical audiences.
 
 **Project Context:**
-I am developing a Python application to crawl faculty profile pages on uidaho.edu and extract specific information (Photo URL, Name, Title, Email, Degrees, Research Areas, etc.) using LangChain, LangGraph, Pydantic, and Google Gemini models. The goal is to output a structured Excel file. We are using `uv` for environment management and `ruff` for linting/formatting. We have permission to crawl but need to be respectful (delays between requests). The HTML structure has some variations across pages. We are using an LLM judge for evaluation and tracking detailed metrics (accuracy, cost, tokens, latency).
+I am developing a Python application to crawl faculty and staff profile pages on uidaho.edu and extract specific information (Photo URL, Name, Title, Email, Degrees, Research Areas, etc.) using LangChain, LangGraph, Pydantic, and Google Gemini models. The goal is to output a structured Excel file. We are using `uv` for environment management and `ruff` for linting/formatting. We have permission to crawl but need to be respectful (delays between requests). The HTML structure has some variations across pages. We are using an LLM judge for evaluation and tracking detailed metrics (accuracy, cost, tokens, latency).
 
 **Current Situation / My Question:**
 [Example 1: "I need to write the `README.md` for this project. What are the essential sections I should include (e.g., Installation, Usage, Configuration, Architecture Overview, Metrics Explanation)? Provide a suggested outline."]

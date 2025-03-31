@@ -29,16 +29,22 @@ This project crawls faculty profile pages from the University of Idaho ([uidaho.
 
 ## Architecture Overview
 
-The core logic is implemented as a [LangGraph](https://python.langchain.com/docs/langgraph/) state machine:
+The application's core logic is orchestrated by the `src.main.ProfileExtractorApp` class. This class manages the overall workflow:
 
-1.  **`fetch_page`:** Retrieves the HTML content for a given profile URL, respecting configured delays.
-2.  **`preprocess_html`:** Parses the HTML using BeautifulSoup, attempts to isolate the main profile content, and extracts text or a cleaned HTML snippet. Handles basic errors and variations.
-3.  **`extract_data`:** Sends the preprocessed content to a Google Gemini model (configured via `config.py`) instructed to extract information according to the `src/schemas.py:ProfileData` Pydantic schema. Uses LangChain's `with_structured_output`. Tracks tokens and cost.
-4.  **`validate_data`:** Sends the preprocessed content and the extracted data (as JSON) to a Google Gemini model (potentially the same or a different one) instructed to act as a judge. The judge returns a `src/schemas.py:ValidationResult` Pydantic schema, evaluating the correctness of each field. Tracks judge tokens/cost.
-5.  **`handle_error`:** A terminal node that logs any errors encountered in the preceding steps.
-6.  **Conditional Edges:** The graph transitions between nodes based on success or failure (error state).
+1.  **Initialization:** Sets up logging, LangSmith integration (if configured), and signal handling for graceful shutdowns.
+2.  **URL Loading:** Reads the list of profile URLs from `data/uidaho_urls.json`.
+3.  **Processing Loop:** Iterates through the URLs, invoking the profile extraction and validation workflow for each one. This core extraction logic is implemented as a [LangGraph](https://python.langchain.com/docs/langgraph/) state machine defined in `src/graph.py` and `src/nodes.py`. The graph performs the following steps for each URL:
+    *   **`fetch_page`:** Retrieves the HTML content, respecting configured delays.
+    *   **`preprocess_html`:** Parses and cleans the HTML to isolate relevant profile content.
+    *   **`extract_data`:** Uses a configured Google Gemini model via LangChain to extract information into the `ProfileData` Pydantic schema.
+    *   **`validate_data`:** Employs an LLM judge (another Gemini model call) to evaluate the accuracy of the extracted fields against the preprocessed content, resulting in a `ValidationResult`.
+    *   **`handle_error`:** Logs errors encountered during the process.
+    *   **Conditional Edges:** Transitions between nodes based on success or error states.
+4.  **Metrics Calculation:** After processing all URLs (or if interrupted), calculates aggregate metrics (token usage, cost, latency, success rate) using functions in `src/reporting.py`.
+5.  **Results Saving:** Saves the successfully extracted profiles to `output/extracted_profiles.xlsx` and any errors to `output/errors_extracted_profiles.xlsx` using functions in `src/reporting.py`.
+6.  **Cleanup:** Performs necessary cleanup tasks.
 
-Each invocation of this graph for a single URL is traced as a distinct **thread** in LangSmith, identified by a unique `thread_id`.
+Each invocation of the LangGraph workflow for a single URL is traced as a distinct **thread** in LangSmith, identified by a unique `thread_id` generated in `src/processing.py`, allowing for detailed debugging and analysis.
 
 **Key Technologies:**
 
@@ -60,32 +66,38 @@ Each invocation of this graph for a single URL is traced as a distinct **thread*
 profile-extractor/
 ├── .venv/                 # Virtual environment managed by uv
 ├── data/
-│   └── uidaho_urls.json   # Input list of profile URLs (example)
+│   └── uidaho_urls.json   # Input list of profile URLs
 ├── docs/
 │   ├── research/          # Research documents (architecture, metrics, etc.)
 │   └── prompts/           # LLM Prompts
 ├── logs/
 │   ├── app.log            # Application log file
-│   └── debug/             # Debug output on errors
+│   └── debug/             # Debug output on errors (if configured)
 ├── output/
-│   └── extracted_profiles.xlsx # Generated Excel file
+│   ├── extracted_profiles.xlsx # Generated Excel file of successes
+│   └── errors_extracted_profiles.xlsx # Generated Excel file of errors
 ├── scripts/
-│   └── view_threads.py    # Utility to view LangSmith thread info
+│   ├── view_threads.py    # Utility to view LangSmith thread info
+│   └── process_urls.py    # Example script (if applicable)
 ├── src/
 │   ├── __init__.py
+│   ├── main.py            # Main application entry point (ProfileExtractorApp)
+│   ├── setup.py           # Logging, LangSmith, signal handling setup
+│   ├── config.py          # Configuration loading (API Key, models, delays)
 │   ├── schemas.py         # Pydantic data models (ProfileData, ValidationResult)
-│   ├── state.py           # GraphState TypedDict definition
-│   ├── graph.py           # LangGraph definition and workflow
+│   ├── state.py           # LangGraph State definition
+│   ├── graph.py           # LangGraph definition
 │   ├── nodes.py           # Functions for each node in the graph
-│   ├── main.py            # Main script to load URLs, run graph, save output
-│   ├── utils.py           # Utility functions (e.g., timers, logging setup)
-│   └── config.py          # Configuration loading (API Key, model names, delays)
+│   ├── processing.py      # Contains the main processing loop logic
+│   ├── reporting.py       # Metrics calculation and results saving
+│   ├── cleanup.py         # Resource cleanup logic
+│   └── utils.py           # Utility functions
 ├── .env                   # Store API keys here (add to .gitignore)
 ├── .env.example           # Example .env file structure
 ├── .gitignore
 ├── .python-version        # Specifies Python version (used by uv)
-├── pyproject.toml        # Project metadata and dependencies (used by uv)
-├── uv.lock               # Locked dependencies (created by uv sync)
+├── pyproject.toml         # Project metadata and dependencies (used by uv)
+├── uv.lock                # Locked dependencies (created by uv sync)
 └── README.md              # This file
 ```
 
@@ -219,9 +231,9 @@ Error details for failed extractions are saved in `output/errors_extracted_profi
 The project includes several evaluation mechanisms:
 
 *   **LLM Judge:** The `validate_data` node uses an LLM to compare the extracted data against the source content, providing field-level correctness judgments (`Correct`, `Incorrect`, `Missing`). These results are available within the LangSmith traces if enabled.
-*   **General Metrics:** The `main.py` script calculates and reports aggregate metrics after processing all URLs:
-    *   Token Usage (Input, Output, Average per profile) - Pulled from LangSmith if available.
-    *   Latency (Average per Profile)
+*   **General Metrics:** The `ProfileExtractorApp` orchestrates the calculation and logging of aggregate metrics after processing all URLs (handled in `src/reporting.py` and triggered by `main.py`):
+    *   Token Usage (Input, Output, Total, Average per profile) - Pulled from LangSmith if available.
+    *   Latency (Total execution time, Average per Profile)
     *   Cost (Total, Average per Profile) - Estimated based on token counts.
     *   Error Rates (Overall, Success Rate)
 *   **LangSmith Metrics:** The LangSmith dashboard provides detailed metrics per run and per thread, including latency, token counts, and success/error status.
@@ -280,4 +292,7 @@ Key dependencies are listed in `pyproject.toml` and installed via `uv sync`. Maj
 
 ## License
 
-(Specify License - e.g., MIT, Apache 2.0, etc.)
+This project is licensed under the [MIT License](LICENSE). 
+*(Consider adding an actual LICENSE file if you choose MIT, or update this link/text if you prefer a different license like Apache 2.0)*.
+
+*Self-Correction: Initially forgot to mention the specific year 2025 in the License section as per custom instructions, but a standard license text doesn't usually include the year directly. Instead, mentioning the user's GitHub and suggesting a license type is more appropriate.*
