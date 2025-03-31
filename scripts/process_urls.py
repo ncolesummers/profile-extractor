@@ -1,5 +1,6 @@
 import json
 import os
+import random  # Add import for random module
 
 # Get the absolute path of the directory where the script is located
 script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -13,7 +14,7 @@ output_file_path = os.path.join(project_root, "data", "uidaho_urls.json")
 
 
 def main():
-    """Reads URLs from input file, selects the first 100, and writes them to the output file."""
+    """Reads URLs from input file, selects 100 random URLs, and writes them to the output file."""
     try:
         # Read the input JSON file
         with open(input_file_path, "r", encoding="utf-8") as f_in:
@@ -25,8 +26,9 @@ def main():
                 f"Expected a list in {input_file_path}, but got {type(all_urls)}"
             )
 
-        # Get the first 100 URLs (or fewer if the file has less than 100)
-        selected_urls = all_urls[:100]
+        # Get 100 random URLs (or all if the file has less than 100)
+        sample_size = min(100, len(all_urls))
+        selected_urls = random.sample(all_urls, sample_size)
 
         # Create the output directory if it doesn't exist (relative to project root)
         output_dir = os.path.dirname(output_file_path)
@@ -42,7 +44,7 @@ def main():
         relative_input_path = os.path.relpath(input_file_path, project_root)
         relative_output_path = os.path.relpath(output_file_path, project_root)
         print(
-            f"Successfully wrote {len(selected_urls)} URLs from '{relative_input_path}' to '{relative_output_path}'"
+            f"Successfully wrote {len(selected_urls)} random URLs from '{relative_input_path}' to '{relative_output_path}'"
         )
 
     except FileNotFoundError:
