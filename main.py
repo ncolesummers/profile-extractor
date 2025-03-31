@@ -103,7 +103,7 @@ class ProfileExtractorApp:
     def run(self) -> None:
         """Run the main profile extraction process."""
         self.logger.info("Application run method started.")
-        self._setup_app()  # Setup logging, LangSmith, signals
+        self._setup_app()
 
         session_id = f"extraction-session-{uuid.uuid4()}"
         self.logger.info(f"Starting extraction session: {session_id}")
@@ -146,10 +146,9 @@ class ProfileExtractorApp:
                     f"Total execution time: {format_duration(total_duration)}"
                 )
 
-            self._cleanup()  # Call the cleanup method
+            self._cleanup()
 
             self.logger.info(f"Exiting with code {self.exit_code}.")
-            # Use sys.exit with the determined code
             sys.exit(self.exit_code)
 
 

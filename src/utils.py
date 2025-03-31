@@ -9,11 +9,14 @@ import tiktoken
 
 
 def dump_debug_info(state, debug_dir="logs/debug"):
-    """Dumps state information to a debug file for analysis.
+    """Dumps selected state information to a debug JSON file for analysis.
+
+    This function creates a simplified representation of the state,
+    excluding potentially large content like raw HTML, to facilitate debugging.
 
     Args:
-        state: The graph state to dump
-        debug_dir: Directory to save debug files
+        state: The graph state dictionary to dump.
+        debug_dir: Directory path where the debug file will be saved.
     """
     # Create debug directory if it doesn't exist
     Path(debug_dir).mkdir(exist_ok=True, parents=True)
@@ -73,7 +76,9 @@ def format_duration(seconds: float) -> str:
         parts.append(f"{minutes}m")
     if secs > 0:
         parts.append(f"{secs}s")
-    if milliseconds > 0 and not parts:  # Only show ms if duration is less than 1 second
+    if (
+        milliseconds > 0 and not parts
+    ):  # Only show ms if duration is less than 1 second and other parts are zero
         parts.append(f"{milliseconds}ms")
     elif not parts and total_seconds == 0 and milliseconds == 0:
         return "0s"

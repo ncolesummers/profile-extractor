@@ -23,7 +23,7 @@ class Settings(BaseSettings):
     LANGSMITH_PROJECT: str = Field(
         "profile-extractor", description="LangSmith project name."
     )
-    # LANGSMITH_TRACING_V2 is implicitly handled by checking if LANGSMITH_API_KEY is set
+    # LangSmith tracing V2 is enabled automatically when LANGSMITH_API_KEY is set
 
     # --- Thread Tracking Configuration ---
     ENABLE_THREAD_TRACKING: bool = Field(

@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 def cleanup_resources(
     logger: logging.Logger, langsmith_client: Union[Any, None] = None
 ):
-    """Perform cleanup of all resources that might prevent clean exit."""
+    """Perform cleanup of resources, primarily focusing on the LangSmith client."""
     global _cleanup_done
     with _cleanup_lock:
         if _cleanup_done:

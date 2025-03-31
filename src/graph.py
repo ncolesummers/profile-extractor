@@ -51,7 +51,7 @@ class GraphState(TypedDict):
 
 
 def should_preprocess(state: GraphState) -> str:
-    """Determines the next step after fetching HTML."""
+    """Determines the next step after fetching HTML based on errors or content presence."""
     if state.get("error"):
         return "handle_error"
     if state.get("html_content"):
@@ -65,7 +65,7 @@ def should_preprocess(state: GraphState) -> str:
 
 
 def should_extract(state: GraphState) -> str:
-    """Determines the next step after preprocessing."""
+    """Determines the next step after preprocessing, checking for errors."""
     if state.get("error"):
         return "handle_error"
     # Allow extraction even if preprocessed_content is empty/None,
@@ -77,7 +77,7 @@ def should_extract(state: GraphState) -> str:
 
 
 def should_validate(state: GraphState) -> str:
-    """Determines the next step after data extraction."""
+    """Determines the next step after data extraction, checking for errors or extracted data."""
     if state.get(
         "error"
     ):  # Check if extraction itself failed (API error, validation error)
@@ -97,7 +97,7 @@ def should_validate(state: GraphState) -> str:
 
 
 def decide_after_validation(state: GraphState) -> str:
-    """Determines the final step after validation."""
+    """Determines the final step after validation attempt, always proceeding to END."""
     # Don't check validation errors, always proceed to END
     # This allows us to save extracted data even if validation failed
     if state.get("validation_result"):
