@@ -349,14 +349,13 @@ def extract_data(state: GraphState) -> GraphState:
                     "    *   `phone`: Primary contact phone number.\\n"
                     "    *   `email`: Primary contact email address.\\n"
                     "    *   `college_unit`, `department_division`: Their university affiliations.\\n"
-                    "    *   `degrees`: List of academic degrees.\\n"
+                    "    *   `degrees`: List of academic degrees. For each degree, extract the type (e.g., 'Ph.D.', 'M.S.'), the awarding institution, and the year (if available). Structure this as a list of JSON objects, where each object has keys: `degree_type`, `institution`, and `year`. If no specific degrees are listed, provide null or an empty list.\\n"
                     "    *   `research_focus_areas`: List of research focus areas.\\n"
-                    "    *   `photo_url`: The URL of their profile picture (this might be provided or need extraction).\\n"
                     "6.  **Completeness:** Extract all available information for the defined schema fields. If a piece of information isn't in the text, the corresponding field should be null or empty as per the schema definition.",
                 ),
                 (
                     "human",
-                    'Please extract the faculty profile details from the following text content:\\n\\n---\\n{page_content}\\n---",',
+                    "Source URL: {source_url}\\n\\nProfile Content:\\n{content}",
                 ),
             ]
         )
@@ -367,7 +366,9 @@ def extract_data(state: GraphState) -> GraphState:
 
         print("Invoking LLM for data extraction...")
         # --- Invocation and Metadata Handling ---\
-        ai_message = chain.invoke({"page_content": preprocessed_content})
+        ai_message = chain.invoke(
+            {"content": preprocessed_content, "source_url": state["url"]}
+        )
 
         # Ensure tracers have completed
         wait_for_all_tracers()
@@ -420,7 +421,9 @@ def extract_data(state: GraphState) -> GraphState:
             # This case might still happen if the API response structure changes or lacks metadata
             print("LLM call successful, but could not retrieve token usage metadata.")
             # Use fallback tokenizer to estimate token counts
-            prompt_text = prompt.format(page_content=preprocessed_content)
+            prompt_text = prompt.format(
+                content=preprocessed_content, source_url=state["url"]
+            )
             input_tokens = count_tokens(prompt_text)
             output_tokens = count_tokens(str(ai_message.content))
             total_tokens = input_tokens + output_tokens
@@ -466,7 +469,22 @@ def extract_data(state: GraphState) -> GraphState:
 
             # More robust Pydantic parsing
             try:
-                # First try parsing using the parser
+                # First normalize numeric year values to strings
+                if (
+                    isinstance(target_obj, dict)
+                    and "degrees" in target_obj
+                    and isinstance(target_obj["degrees"], list)
+                ):
+                    for degree in target_obj["degrees"]:
+                        if (
+                            isinstance(degree, dict)
+                            and "year" in degree
+                            and degree["year"] is not None
+                        ):
+                            if isinstance(degree["year"], int):
+                                degree["year"] = str(degree["year"])
+
+                # Then try parsing using the parser
                 extracted_profile = parser.parse(json.dumps(target_obj))
             except (OutputParserException, ValidationError) as e:
                 # If that fails, try direct instantiation with model validation

@@ -3,6 +3,21 @@ from pydantic import BaseModel, Field
 from enum import Enum
 
 
+# New model for structured degree information
+class DegreeInfo(BaseModel):
+    """Schema for storing structured academic degree information."""
+
+    degree_type: Optional[str] = Field(
+        None, description="The type of degree (e.g., Ph.D., M.S., B.A.)."
+    )
+    institution: Optional[str] = Field(
+        None, description="The institution that awarded the degree."
+    )
+    year: Optional[str] = Field(
+        None, description="The year the degree was awarded (as a string)."
+    )  # Using str for flexibility with LLM output
+
+
 class ProfileData(BaseModel):
     """Schema for storing extracted faculty profile information."""
 
@@ -33,8 +48,9 @@ class ProfileData(BaseModel):
     department_division: Optional[str] = Field(
         None, description="The department or division within the college/unit."
     )
-    degrees: Optional[List[str]] = Field(
-        None, description="List of academic degrees held."
+    degrees: Optional[List[DegreeInfo]] = Field(
+        None,
+        description="List of academic degrees held, including type, institution, and year.",
     )
     research_focus_areas: Optional[List[str]] = Field(
         None, description="List of research focus areas or interests."

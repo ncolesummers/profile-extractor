@@ -10,6 +10,12 @@ This document defines the Pydantic data models used for structuring the extracte
     from pydantic import BaseModel, Field, HttpUrl, EmailStr
     from typing import Optional, List
 
+    # Add definition for the new DegreeInfo model
+    class DegreeInfo(BaseModel):
+        degree_type: Optional[str] = Field(None, description="The type of degree (e.g., Ph.D., M.S., B.A.).")
+        institution: Optional[str] = Field(None, description="The institution that awarded the degree.")
+        year: Optional[str] = Field(None, description="The year the degree was awarded (as a string).")
+
     class ProfileData(BaseModel):
         source_url: HttpUrl = Field(description="The URL the data was extracted from")
         photo_url: Optional[HttpUrl] = Field(None, description="URL of the profile photo")
@@ -22,7 +28,8 @@ This document defines the Pydantic data models used for structuring the extracte
         email: Optional[EmailStr] = Field(None, description="Primary email address")
         college_unit: Optional[str] = Field(None, description="College or main administrative unit")
         department_division: Optional[str] = Field(None, description="Department or division within the college/unit")
-        degrees: Optional[List[str]] = Field(None, description="List of academic degrees held")
+        # Update the degrees field description and type
+        degrees: Optional[List[DegreeInfo]] = Field(None, description="List of academic degrees held (type, institution, year)")
         research_focus_areas: Optional[List[str]] = Field(None, description="List of research areas or focus keywords")
 
         class Config:
